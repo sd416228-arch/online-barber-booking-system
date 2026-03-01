@@ -1,0 +1,84 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}Booking Details - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-calendar-check"></i> Booking #{{ booking.id }}</h4>
+                        <span class="badge badge-{{ booking.status }} fs-6">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Barber Information</h6>
+                            <p><strong>{{ booking.barber.name }}</strong></p>
+                            <p class="text-muted">{{ booking.barber.experience }} years experience</p>
+                            {% if booking.barber.photo %}
+                                <img src="{{ booking.barber.photo.url }}" alt="{{ booking.barber.name }}" style="width: 100px; border-radius: 50%; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Appointment Details</h6>
+                            <p><strong>Service:</strong> {{ booking.service.name }}</p>
+                            <p><strong>Price:</strong> ${{ booking.service.price }}</p>
+                            <p><strong>Duration:</strong> {{ booking.service.duration }} minutes</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Date & Time</h6>
+                            <p><i class="fas fa-calendar"></i> <strong>{{ booking.booking_date }}</strong></p>
+                            <p><i class="fas fa-clock"></i> <strong>{{ booking.booking_time }}</strong></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Booking Info</h6>
+                            <p><strong>Created:</strong> {{ booking.created_at|date:"M d, Y" }}</p>
+                            <p><strong>Updated:</strong> {{ booking.updated_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if booking.notes %}
+                    <hr>
+                    <h6 class="text-muted mb-2">Special Notes</h6>
+                    <p>{{ booking.notes }}</p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'user_booking_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                        
+                        {% if can_review and booking.status == 'completed' %}
+                            <a href="{% url 'user_add_review' booking.id %}" class="btn btn-success">
+                                <i class="fas fa-star"></i> Leave Review
+                            </a>
+                        {% endif %}
+                        
+                        {% if booking.can_be_cancelled %}
+                            <a href="{% url 'user_booking_update' booking.id %}" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{% url 'user_booking_cancel' booking.id %}" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Cancel
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

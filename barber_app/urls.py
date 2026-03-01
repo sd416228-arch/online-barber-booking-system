@@ -1,0 +1,37 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('user-login/', views.user_login, name='user_login'),
+    path('user-register/', views.user_register, name='user_register'),
+    path('admin-login/', views.admin_login, name='admin_login'),
+    path('logout/', views.logout_view, name='logout'),
+    
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-barbers/', views.admin_barber_list, name='admin_barber_list'),
+    path('admin-barbers/create/', views.admin_barber_create, name='admin_barber_create'),
+    path('admin-barbers/<int:pk>/edit/', views.admin_barber_edit, name='admin_barber_edit'),
+    path('admin-barbers/<int:pk>/delete/', views.admin_barber_delete, name='admin_barber_delete'),
+    path('admin-services/', views.admin_service_list, name='admin_service_list'),
+    path('admin-services/create/', views.admin_service_create, name='admin_service_create'),
+    path('admin-services/<int:pk>/edit/', views.admin_service_edit, name='admin_service_edit'),
+    path('admin-services/<int:pk>/delete/', views.admin_service_delete, name='admin_service_delete'),
+    path('admin-bookings/', views.admin_booking_list, name='admin_booking_list'),
+    path('admin-bookings/<int:pk>/', views.admin_booking_detail, name='admin_booking_detail'),
+    path('admin-bookings/<int:pk>/update/', views.admin_booking_update, name='admin_booking_update'),
+    path('admin-bookings/<int:pk>/delete/', views.admin_booking_delete, name='admin_booking_delete'),
+    
+    path('user-dashboard/', views.user_dashboard, name='user_dashboard'),
+    path('user-barbers/', views.user_barber_list, name='user_barber_list'),
+    path('user-barbers/<int:pk>/', views.user_barber_detail, name='user_barber_detail'),
+    path('user-services/', views.user_service_list, name='user_service_list'),
+    path('user-bookings/', views.user_booking_list, name='user_booking_list'),
+    path('user-bookings/create/', views.user_booking_create, name='user_booking_create'),
+    path('user-bookings/<int:pk>/', views.user_booking_detail, name='user_booking_detail'),
+    path('user-bookings/<int:pk>/update/', views.user_booking_update, name='user_booking_update'),
+    path('user-bookings/<int:pk>/cancel/', views.user_booking_cancel, name='user_booking_cancel'),
+    path('user-bookings/<int:booking_id>/review/', views.user_add_review, name='user_add_review'),
+    path('user-profile/', views.user_profile, name='user_profile'),
+    path('user-profile/edit/', views.user_profile_edit, name='user_profile_edit'),
+]

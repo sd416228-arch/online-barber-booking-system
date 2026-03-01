@@ -1,0 +1,81 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}Booking Detail - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-calendar-check"></i> Booking #{{ booking.id }}</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Customer Information</h6>
+                            <p><strong>Name:</strong> {{ booking.user.get_full_name|default:booking.user.username }}</p>
+                            <p><strong>Email:</strong> {{ booking.user.email }}</p>
+                            <p><strong>Phone:</strong> {{ booking.user.phone|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Booking Status</h6>
+                            <p><strong>Status:</strong> 
+                                <span class="badge badge-{{ booking.status }} fs-6">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </p>
+                            <p><strong>Created:</strong> {{ booking.created_at|date:"M d, Y H:i" }}</p>
+                            <p><strong>Updated:</strong> {{ booking.updated_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Barber Information</h6>
+                            <p><strong>Name:</strong> {{ booking.barber.name }}</p>
+                            <p><strong>Experience:</strong> {{ booking.barber.experience }} years</p>
+                            <p><strong>Phone:</strong> {{ booking.barber.phone|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Service & Appointment</h6>
+                            <p><strong>Service:</strong> {{ booking.service.name }}</p>
+                            <p><strong>Price:</strong> ${{ booking.service.price }}</p>
+                            <p><strong>Duration:</strong> {{ booking.service.duration }} minutes</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Appointment Details</h6>
+                            <p><strong>Date:</strong> {{ booking.booking_date }}</p>
+                            <p><strong>Time:</strong> {{ booking.booking_time }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if booking.notes %}
+                    <hr>
+                    <h6 class="text-muted">Notes</h6>
+                    <p>{{ booking.notes }}</p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'admin_booking_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                        <a href="{% url 'admin_booking_update' booking.id %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Update Status
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

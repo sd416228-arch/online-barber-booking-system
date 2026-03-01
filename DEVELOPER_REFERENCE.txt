@@ -1,0 +1,353 @@
+# DEVELOPER QUICK REFERENCE
+
+## 🚀 Quick Commands
+
+```bash
+# Setup & Run
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+
+# Development
+python manage.py makemigrations
+python manage.py migrate
+python manage.py shell
+python manage.py createsuperuser
+python manage.py collectstatic
+
+# Testing
+python manage.py test
+
+# Database
+python manage.py dumpdata > backup.json
+python manage.py loaddata backup.json
+
+# Admin
+python manage.py changepassword username
+python manage.py flush  # ⚠️ Deletes all data
+```
+
+## 🔐 Key Credentials
+
+**AdminLogin:** `/admin-login/`
+- Use superuser created with `createsuperuser`
+
+**User Login:** `/user-login/`
+- Register at `/user-register/`
+
+**Django Admin:** `/admin/`
+- Use superuser credentials
+
+## 📊 URL Patterns
+
+### Authentication
+- GET/POST `/` - Home
+- GET/POST `/user-login/` - User login
+- GET/POST `/user-register/` - User registration  
+- GET/POST `/admin-login/` - Admin login
+- GET `/logout/` - Logout
+
+### Admin Panel
+- `/admin-dashboard/` - Dashboard
+- `/admin-barbers/` - List barbers
+- `/admin-barbers/create/` - Create barber
+- `/admin-barbers/<id>/edit/` - Edit barber
+- `/admin-barbers/<id>/delete/` - Delete barber
+- `/admin-services/` - List services
+- `/admin-bookings/` - List all bookings
+- `/admin-bookings/<id>/` - Booking detail
+- `/admin-bookings/<id>/update/` - Update booking
+
+### User Panel
+- `/user-dashboard/` - User dashboard
+- `/user-barbers/` - Browse barbers
+- `/user-barbers/<id>/` - Barber profile
+- `/user-services/` - Browse services
+- `/user-bookings/` - My bookings
+- `/user-bookings/create/` - Create booking
+- `/user-bookings/<id>/` - Booking detail
+- `/user-bookings/<id>/update/` - Edit booking
+- `/user-bookings/<id>/cancel/` - Cancel booking
+- `/user-bookings/<id>/review/` - Leave review
+- `/user-profile/` - User profile
+- `/user-profile/edit/` - Edit profile
+
+## 📁 Key Files
+
+| File | Purpose |
+|------|---------|
+| `settings.py` | Django configuration |
+| `models.py` | Database models (CustomUser, Barber, Service, Booking, Review) |
+| `views.py` | 30+ view functions |
+| `forms.py` | 8 form classes |
+| `urls.py` | 50+ URL routes |
+| `templates/base.html` | Main template |
+| `decorators.py` | Role-based decorators |
+
+## 🔑 Model Fields
+
+**CustomUser**
+- role: 'admin' or 'user'
+- phone, dateofbirth, address
+
+**Barber**
+- experience, bio, photo
+- rating, phone, is_available
+- services (ManyToMany)
+
+**Service**
+- description, price, duration
+- image, is_active
+
+**Booking**
+- booking_date, booking_time
+- status: pending|confirmed|completed|cancelled
+- notes
+
+**Review**
+- rating (1-5)
+- comment
+
+## 🎨 Form Classes
+
+```python
+CustomUserCreationForm  # Registration
+UserLoginForm          # User login
+AdminLoginForm         # Admin login
+BarberForm            # Create/edit barber
+ServiceForm           # Create/edit service
+BookingForm           # Create/update booking
+BookingStatusForm     # Admin: change status
+ReviewForm            # Leave review
+```
+
+## 🔐 Decorators
+
+```python
+@user_required        # Regular user only
+@admin_required       # Admin only
+@login_required_custom  # Logged in required
+```
+
+## 🎯 Common Tasks
+
+### Create Barber (Admin)
+```python
+Barber.objects.create(
+    user=user,
+    name="John Smith",
+    experience=5,
+    bio="Professional barber"
+)
+barber.services.add(service1, service2)
+```
+
+### Create Booking (User)
+```python
+Booking.objects.create(
+    user=request.user,
+    barber=barber,
+    service=service,
+    booking_date=date.today(),
+    booking_time="10:00"
+)
+```
+
+### Add Review
+```python
+Review.objects.create(
+    user=request.user,
+    barber=barber,
+    booking=booking,
+    rating=5,
+    comment="Excellent service!"
+)
+```
+
+## 🛠️ Settings to Modify
+
+**DEBUG** (settings.py)
+```python
+DEBUG = True  # Development
+DEBUG = False  # Production
+```
+
+**ALLOWED_HOSTS** (settings.py)
+```python
+ALLOWED_HOSTS = ['*']  # Development
+ALLOWED_HOSTS = ['yourdomain.com']  # Production
+```
+
+**DATABASE** (settings.py)
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',  # SQLite
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+```
+
+**EMAIL** (settings.py)
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Console
+# Or use SMTP for production
+```
+
+## 🧪 Quick Test Workflow
+
+1. **Register User**
+   - Visit `/user-register/`
+   - Fill form
+   - Login at `/user-login/`
+
+2. **Create Content (Admin)**
+   - `/admin-login/` with superuser
+   - Create barbers: `/admin-barbers/create/`
+   - Create services: `/admin-services/create/`
+
+3. **Make Booking (User)**
+   - `/user-barbers/` - browse
+   - Click "Book Now"
+   - Fill `/user-bookings/create/`
+   - View at `/user-bookings/`
+
+4. **Leave Review (User)**
+   - View completed booking
+   - Click "Leave Review"
+   - Submit at `/user-bookings/<id>/review/`
+
+5. **Manage Booking (Admin)**
+   - `/admin-bookings/`
+   - Click to view booking
+   - Update status at `/admin-bookings/<id>/update/`
+
+## 📊 Query Examples
+
+```python
+# Get all barbers
+barbers = Barber.objects.all()
+
+# Get available barbers
+available = Barber.objects.filter(is_available=True)
+
+# Get user's bookings
+my_bookings = Booking.objects.filter(user=request.user)
+
+# Get pending bookings
+pending = Booking.objects.filter(status='pending')
+
+# Get barber's average rating
+avg_rating = barber.reviews.aggregate(Avg('rating'))['rating__avg']
+
+# Get services for a barber
+services = barber.services.all()
+
+# Filter bookings by date
+from datetime import date
+today_bookings = Booking.objects.filter(booking_date=date.today())
+```
+
+## 🔗 User Authentication
+
+```python
+# Check if user is authenticated
+request.user.is_authenticated
+
+# Check user role
+request.user.is_admin()  # Returns True/False
+request.user.is_regular_user()  # Returns True/False
+
+# Get current user
+current_user = request.user
+
+# Login user
+login(request, user)
+
+# Logout user
+logout(request)
+```
+
+## 🚨 Common Errors & Fixes
+
+**"No such table"**
+```bash
+python manage.py migrate
+```
+
+**"Port 8000 in use"**
+```bash
+python manage.py runserver 8001
+```
+
+**"Static files not loading"**
+```bash
+python manage.py collectstatic
+```
+
+**"ModuleNotFoundError"**
+```bash
+pip install -r requirements.txt
+```
+
+**"AuthenticationBackend not found"**
+- Add `barber_app` to INSTALLED_APPS in settings.py
+
+## 📝 Template Variables
+
+**In Context:**
+```python
+context = {
+    'user': request.user,
+    'barbers': barbers,
+    'bookings': bookings,
+    'services': services,
+}
+```
+
+**In Template:**
+```html
+{{ user.username }}
+{{ barber.name }}
+{{ booking.status }}
+{% for service in services %}
+```
+
+## 🎨 CSS Classes
+
+```css
+.badge-pending    /* Yellow status badge */
+.badge-confirmed  /* Blue status badge */
+.badge-completed  /* Green status badge */
+.badge-cancelled  /* Red status badge */
+
+.card            /* Bootstrap card */
+.table           /* Bootstrap table */
+.btn-primary     /* Blue button */
+.alert           /* Alert message */
+```
+
+## 📲 Responsive Breakpoints
+
+```css
+/* Extra small devices (phones) */
+@media (max-width: 576px)
+
+/* Small devices (landscape phones) */
+@media (max-width: 768px)
+
+/* Medium devices (tablets) */
+@media (max-width: 992px)
+
+/* Large devices (desktops) */
+@media (max-width: 1200px)
+```
+
+---
+
+**Quick Reference Complete!** 🎉
+
+Keep this reference handy while developing.

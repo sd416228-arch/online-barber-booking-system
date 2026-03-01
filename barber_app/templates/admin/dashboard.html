@@ -1,0 +1,164 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}Admin Dashboard - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-0"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+            <p class="text-muted">Welcome back, {{ user.first_name|default:user.username }}!</p>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Bookings</p>
+                            <h3 class="mb-0">{{ total_bookings }}</h3>
+                        </div>
+                        <div style="font-size: 40px; color: #007bff;">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Pending Bookings</p>
+                            <h3 class="mb-0" style="color: #ffc107;">{{ pending_bookings }}</h3>
+                        </div>
+                        <div style="font-size: 40px; color: #ffc107;">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Barbers</p>
+                            <h3 class="mb-0">{{ total_barbers }}</h3>
+                        </div>
+                        <div style="font-size: 40px; color: #28a745;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Services</p>
+                            <h3 class="mb-0">{{ total_services }}</h3>
+                        </div>
+                        <div style="font-size: 40px; color: #dc3545;">
+                            <i class="fas fa-scissors"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h4 class="mb-3">Quick Actions</h4>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'admin_barber_create' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-user-plus"></i> Add Barber
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'admin_service_create' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-plus"></i> Add Service
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'admin_booking_list' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-calendar-check"></i> View Bookings
+                    </a>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <a href="{% url 'admin_barber_list' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-list"></i> Manage Barbers
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Bookings -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Recent Bookings</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>User</th>
+                                <th>Barber</th>
+                                <th>Service</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in recent_bookings %}
+                            <tr>
+                                <td>#{{ booking.id }}</td>
+                                <td>{{ booking.user.get_full_name|default:booking.user.username }}</td>
+                                <td>{{ booking.barber.name }}</td>
+                                <td>{{ booking.service.name }}</td>
+                                <td>{{ booking.booking_date }} at {{ booking.booking_time }}</td>
+                                <td>
+                                    <span class="badge badge-{{ booking.status }}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'admin_booking_detail' booking.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-3">No bookings yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'admin_booking_list' %}" class="btn btn-outline-primary btn-sm">View All Bookings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

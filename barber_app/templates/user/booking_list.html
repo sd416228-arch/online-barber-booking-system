@@ -1,0 +1,88 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}My Bookings - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-calendar-check"></i> My Bookings</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'user_booking_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Booking
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filter -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="get">
+                <select class="form-select" name="status" onchange="this.form.submit()">
+                    <option value="">All Bookings</option>
+                    {% for value, label in statuses %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Bookings List -->
+    <div class="row">
+        {% for booking in bookings %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">{{ booking.barber.name }}</h5>
+                        <span class="badge badge-{{ booking.status }}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <p class="text-muted mb-2">{{ booking.service.name }}</p>
+                    
+                    <div class="mb-3">
+                        <p class="mb-1">
+                            <i class="fas fa-calendar"></i> <strong>{{ booking.booking_date }}</strong>
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-clock"></i> <strong>{{ booking.booking_time }}</strong>
+                        </p>
+                    </div>
+                    
+                    {% if booking.notes %}
+                    <p class="text-muted small mb-3">
+                        <i class="fas fa-sticky-note"></i> {{ booking.notes|truncatewords:15 }}
+                    </p>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="{% url 'user_booking_detail' booking.id %}" class="btn btn-sm btn-info flex-grow-1">
+                            <i class="fas fa-eye"></i> Details
+                        </a>
+                        {% if not booking.is_past and booking.status != 'completed' %}
+                            <a href="{% url 'user_booking_update' booking.id %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'user_booking_cancel' booking.id %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i> You haven't made any bookings yet. 
+                <a href="{% url 'user_booking_create' %}">Book an appointment now!</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

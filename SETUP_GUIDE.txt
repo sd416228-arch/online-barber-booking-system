@@ -1,0 +1,467 @@
+# SETUP GUIDE - Online Barber Booking System
+
+## Quick Start Guide
+
+This document provides step-by-step instructions to get your Online Barber Booking System up and running.
+
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+- **Python 3.8 or higher**
+  - Check: `python --version` or `python3 --version`
+- **pip** (Python package manager)
+  - Check: `pip --version`
+- **Virtual Environment** (recommended)
+  - Module: `venv` (built-in with Python)
+
+---
+
+## 🚀 Installation Steps
+
+### Step 1: Navigate to Project Folder
+```bash
+cd online_barber_project
+```
+
+### Step 2: Create Virtual Environment
+Create an isolated Python environment for this project.
+
+**Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+**macOS/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+After activation, you should see `(venv)` in your terminal prompt.
+
+### Step 3: Install Python Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+This installs all required packages:
+- Django 4.2.7
+- Pillow (for image processing)
+- django-crispy-forms
+- crispy-bootstrap5
+
+### Step 4: Configure Database
+Initialize the database with all tables and schema.
+
+**Create Migrations:**
+```bash
+python manage.py makemigrations
+```
+
+**Apply Migrations:**
+```bash
+python manage.py migrate
+```
+
+This creates the SQLite database and all necessary tables.
+
+### Step 5: Create Administration Account
+Create a superuser account to access the admin panel.
+
+```bash
+python manage.py createsuperuser
+```
+
+You'll be prompted to enter:
+- Username (e.g., `admin`)
+- Email (e.g., `admin@example.com`)
+- Password (enter twice for confirmation)
+- First Name (optional)
+- Last Name (optional)
+
+### Step 6: Collect Static Files (Optional but Good)
+```bash
+python manage.py collectstatic --noinput
+```
+
+### Step 7: Run Development Server
+```bash
+python manage.py runserver
+```
+
+Output should show:
+```
+Starting development server at http://127.0.0.1:8000/
+```
+
+---
+
+## 🌐 Accessing the Application
+
+### Landing Page
+```
+http://127.0.0.1:8000/
+```
+View featured barbers and services.
+
+### User Registration
+```
+http://127.0.0.1:8000/user-register/
+```
+Create a new user account.
+
+### User Login
+```
+http://127.0.0.1:8000/user-login/
+```
+Login with your user credentials.
+
+### Admin Login
+```
+http://127.0.0.1:8000/admin-login/
+```
+Login with the superuser account created in Step 5.
+
+### Django Admin Panel
+```
+http://127.0.0.1:8000/admin/
+```
+Access Django's built-in admin interface.
+
+---
+
+## 👥 Default Test Accounts
+
+### Admin Account
+- Create this using `python manage.py createsuperuser`
+- Example credentials:
+  - Username: `admin`
+  - Password: `password123`
+  - Login URL: `/admin-login/`
+
+### Regular User Account
+1. Navigate to `/user-register/`
+2. Fill in the registration form
+3. Create your account
+4. Login at `/user-login/`
+
+---
+
+## 📊 Initial Data Setup
+
+### Add Barbers (Admin)
+1. Login to Admin Dashboard (`/admin-login/`)
+2. Go to "Barber Management" → "Add New Barber"
+3. Fill in details:
+   - Name
+   - Years of Experience
+   - Biography
+   - Profile Photo (optional)
+   - List of Services
+4. Click "Create Barber"
+
+### Add Services (Admin)
+1. Login to Admin Dashboard
+2. Go to "Service Management" → "Add New Service"
+3. Fill in details:
+   - Service Name
+   - Description
+   - Price
+   - Duration (in minutes)
+   - Service Image (optional)
+4. Click "Create Service"
+
+### Make Bookings (User)
+1. Login with user account (`/user-login/`)
+2. Go to "Browse Barbers" or "View Services"
+3. Click on a barber
+4. Click "Book Now"
+5. Fill in:
+   - Select Barber
+   - Select Service
+   - Choose Date (must be future date)
+   - Choose Time
+   - Add Special Notes (optional)
+6. Submit booking
+
+---
+
+## 🔒 User Roles & Access
+
+### Admin Role
+- Access: `/admin-login/`, `/admin-dashboard/`
+- Permissions:
+  - Manage all barbers
+  - Manage all services
+  - View and update all bookings
+  - Cannot access user pages
+
+### User Role
+- Access: `/user-login/`, `/user-dashboard/`
+- Permissions:
+  - Browse barbers and services
+  - Book appointments
+  - View/update/cancel own bookings
+  - Leave reviews for completed bookings
+  - Cannot access admin pages
+
+---
+
+## 🗄️ Database Structure
+
+The system includes the following models:
+
+### CustomUser
+- Custom user model with roles
+- Fields: username, email, phone, dateofbirth, address, role
+- Roles: 'admin', 'user'
+
+### Barber
+- Professional barber information
+- Linked to services and bookings
+
+### Service
+- Available barber services
+- Price and duration information
+
+### Booking
+- Customer appointments
+- Status tracking: pending, confirmed, completed, cancelled
+
+### Review
+- Customer ratings and feedback
+- 1-5 star rating system
+
+---
+
+## 🛠️ Troubleshooting
+
+### Issue: "ModuleNotFoundError: No module named 'django'"
+**Solution:**
+```bash
+pip install -r requirements.txt
+```
+
+### Issue: "No such table: barber_app_customuser"
+**Solution:**
+```bash
+python manage.py migrate
+```
+
+### Issue: "Port 8000 is already in use"
+**Solution:**
+Run server on a different port:
+```bash
+python manage.py runserver 8001
+```
+
+### Issue: Static files not loading
+**Solution:**
+```bash
+python manage.py collectstatic --noinput
+```
+
+### Issue: "Connection refused" when accessing database
+**Solution:** The SQLite database file (`db.sqlite3`) may be missing:
+```bash
+python manage.py migrate
+```
+
+---
+
+## 📝 File Descriptions
+
+### Core Project Files
+- `manage.py` - Django management command interface
+- `requirements.txt` - Python package dependencies
+- `README.md` - Project documentation
+- `.gitignore` - Git ignore rules
+
+### Configuration
+- `online_barber/settings.py` - Django settings
+- `online_barber/urls.py` - Main URL routing
+- `online_barber/wsgi.py` - WSGI application
+
+### App Files
+- `barber_app/models.py` - Database models
+- `barber_app/views.py` - View logic
+- `barber_app/forms.py` - Form definitions
+- `barber_app/urls.py` - App URL routing
+- `barber_app/admin.py` - Django admin configuration
+- `barber_app/decorators.py` - Role-based decorators
+
+### Templates
+**Shared:** `base.html`, `index.html`, login templates
+**Admin:** Dashboard, barber, service, booking management
+**User:** Dashboard, barber browse, booking, profile
+
+### Static Files
+- `css/style.css` - Custom styling
+
+---
+
+## 🔐 Security Best Practices
+
+### Development
+- DEBUG = True (automatic in dev)
+- SQLite database (fine for development)
+- SECRET_KEY auto-generated
+
+### Production Deployment
+1. Change `DEBUG = False`
+2. Generate new `SECRET_KEY`
+3. Set `ALLOWED_HOSTS`
+4. Use PostgreSQL or MySQL
+5. Implement email notifications
+6. Enable HTTPS
+7. Use Gunicorn with Nginx
+
+---
+
+## 📱 Key Features Walkthrough
+
+### For Users
+1. **Register** → Create account at `/user-register/`
+2. **Browse** → View barbers and services
+3. **Book** → Create appointments with preferred barber
+4. **Manage** → View, edit, or cancel bookings
+5. **Review** → Leave ratings after completion
+
+### For Admins
+1. **Login** → Access admin panel at `/admin-login/`
+2. **Manage Barbers** → CRUD operations
+3. **Manage Services** → CRUD operations
+4. **View Bookings** → Monitor all appointments
+5. **Update Status** → Confirm or manage bookings
+
+---
+
+## 🚀 Advanced Setup
+
+### Using PostgreSQL (Optional)
+1. Install PostgreSQL and psycopg2:
+```bash
+pip install psycopg2-binary
+```
+
+2. Update `settings.py`:
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'online_barber_db',
+        'USER': 'postgres',
+        'PASSWORD': 'your_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+```
+
+3. Run migrations:
+```bash
+python manage.py migrate
+```
+
+### Email Configuration (Optional)
+Update `settings.py` for email notifications:
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-app-password'
+```
+
+---
+
+## 📞 Support & Help
+
+### Common Commands
+```bash
+# Activate virtual environment (Windows)
+venv\Scripts\activate
+
+# Activate virtual environment (macOS/Linux)
+source venv/bin/activate
+
+# Deactivate virtual environment
+deactivate
+
+# Install packages
+pip install -r requirements.txt
+
+# Run migrations
+python manage.py migrate
+
+# Create superuser
+python manage.py createsuperuser
+
+# Run development server
+python manage.py runserver
+
+# Create migrations
+python manage.py makemigrations
+
+# Django shell
+python manage.py shell
+
+# Run tests
+python manage.py test
+
+# Collect static files
+python manage.py collectstatic
+```
+
+### Django Management Commands
+```bash
+# Check system status
+python manage.py check
+
+# Show migrations
+python manage.py showmigrations
+
+# Load data
+python manage.py loaddata fixture_name
+
+# Dump data
+python manage.py dumpdata > data.json
+
+# Clear cache
+python manage.py clear_cache
+```
+
+---
+
+## ✅ Verification Checklist
+
+After installation, verify everything works:
+
+- [ ] Virtual environment activated
+- [ ] All dependencies installed
+- [ ] Database migrated successfully
+- [ ] Superuser account created
+- [ ] Development server running
+- [ ] Can access home page (http://127.0.0.1:8000/)
+- [ ] Can register user account
+- [ ] Can login as user
+- [ ] Can login as admin
+- [ ] Can add barbers (admin)
+- [ ] Can add services (admin)
+- [ ] Can make bookings (user)
+- [ ] Can view bookings (user)
+
+---
+
+## 🎉 You're All Set!
+
+Your Online Barber Booking System is now ready to use.
+
+**Happy Booking!** 💇‍♂️
+
+For additional help, refer to the README.md file.

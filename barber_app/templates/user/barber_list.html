@@ -1,0 +1,84 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}Browse Barbers - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-users"></i> Browse Our Barbers</h2>
+            <p class="text-muted">Find and book your favorite barber</p>
+        </div>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="get" class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="Search barbers by name..." value="{{ search_query }}">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <form method="get">
+                <select class="form-select" name="service" onchange="this.form.submit()">
+                    <option value="">All Services</option>
+                    {% for service in services %}
+                        <option value="{{ service.id }}" {% if service_filter|stringformat:"d" == service.id|stringformat:"d" %}selected{% endif %}>
+                            {{ service.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Barbers Grid -->
+    <div class="row">
+        {% for barber in barbers %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if barber.photo %}
+                    <img src="{{ barber.photo.url }}" class="card-img-top" alt="{{ barber.name }}" style="height: 250px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <i class="fas fa-user-circle" style="font-size: 100px; color: #ddd;"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ barber.name }}</h5>
+                    <p class="card-text text-muted">{{ barber.experience }} years experience</p>
+                    
+                    <div class="mb-2">
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-star"></i> {{ barber.rating|default:"No rating" }}
+                        </span>
+                        {% if barber.is_available %}
+                            <span class="badge bg-success">Available</span>
+                        {% else %}
+                            <span class="badge bg-danger">Unavailable</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="card-text small">{{ barber.bio|truncatewords:15 }}</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'user_barber_detail' barber.id %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-info-circle"></i> View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i> No barbers found. Try adjusting your filters.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

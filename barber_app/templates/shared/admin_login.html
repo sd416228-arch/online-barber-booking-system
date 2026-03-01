@@ -1,0 +1,62 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}Admin Login - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card mt-5 mb-5">
+                <div class="card-header text-center" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                    <h4 class="mb-0"><i class="fas fa-lock"></i> Administrator Login</h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle"></i> <strong>Admin Account Required</strong><br>
+                        This login is for administrators only. If you are a regular user, please use the user login.
+                    </div>
+                    
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.username.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.password.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger w-100 mb-3">
+                            <i class="fas fa-sign-in-alt"></i> Admin Login
+                        </button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <p class="text-center text-muted small">
+                        Are you a regular user?
+                        <a href="{% url 'user_login' %}">User Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

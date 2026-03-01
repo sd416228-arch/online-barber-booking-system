@@ -1,0 +1,147 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}Home - Online Barber Booking System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h1 class="display-4 mb-4"><strong>Welcome to Online Barber</strong></h1>
+            <p class="lead mb-4">Book your perfect haircut with the best barbers in town. Fast, easy, and reliable barbering services at your convenience.</p>
+            {% if not user.is_authenticated %}
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'user_register' %}" class="btn btn-primary btn-lg">Get Started</a>
+                    <a href="{% url 'user_login' %}" class="btn btn-outline-primary btn-lg">User Login</a>
+                </div>
+            {% else %}
+                {% if user.is_admin %}
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-primary btn-lg">Go to Admin Dashboard</a>
+                {% else %}
+                    <a href="{% url 'user_dashboard' %}" class="btn btn-primary btn-lg">Go to Your Dashboard</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <img src="https://images.unsplash.com/photo-1621905167918-48416bd8575a?w=500&h=400&fit=crop" alt="Barber" class="img-fluid rounded-lg shadow">
+        </div>
+    </div>
+    
+    <!-- Stats Section -->
+    <div class="row text-center mb-5">
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-users" style="color: var(--primary-color);"></i></h5>
+                    <h2>{{ total_barbers }}</h2>
+                    <p class="card-text">Expert Barbers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-scissors" style="color: var(--primary-color);"></i></h5>
+                    <h2>{{ total_services }}</h2>
+                    <p class="card-text">Services Available</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-star" style="color: var(--accent-color);"></i></h5>
+                    <h2>5.0</h2>
+                    <p class="card-text">Average Rating</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-check" style="color: var(--success-color);"></i></h5>
+                    <h2>100%</h2>
+                    <p class="card-text">Satisfaction Rate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Featured Barbers Section -->
+    <div class="mb-5">
+        <h2 class="mb-4"><strong>Featured Barbers</strong></h2>
+        <div class="row">
+            {% for barber in barbers %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if barber.photo %}
+                        <img src="{{ barber.photo.url }}" class="card-img-top" alt="{{ barber.name }}" style="height: 250px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <i class="fas fa-user-circle" style="font-size: 80px; color: #ddd;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ barber.name }}</h5>
+                        <p class="card-text text-muted">{{ barber.experience }} years experience</p>
+                        <div class="mb-3">
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star"></i> {{ barber.rating|default:"N/A" }}
+                            </span>
+                        </div>
+                        <p class="card-text small">{{ barber.bio|truncatewords:15 }}</p>
+                        {% if user.is_authenticated and not user.is_admin %}
+                            <a href="{% url 'user_barber_detail' barber.id %}" class="btn btn-primary btn-sm w-100">View Profile</a>
+                        {% elif not user.is_authenticated %}
+                            <a href="{% url 'user_login' %}" class="btn btn-primary btn-sm w-100">View Profile</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-center text-muted">No barbers available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Services Section -->
+    <div class="mb-5">
+        <h2 class="mb-4"><strong>Our Services</strong></h2>
+        <div class="row">
+            {% for service in services|slice:":3" %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if service.image %}
+                        <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-scissors" style="font-size: 60px; color: #ddd;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ service.name }}</h5>
+                        <p class="card-text">{{ service.description|truncatewords:10 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h5 mb-0" style="color: var(--primary-color);">${{ service.price }}</span>
+                            <small class="text-muted">{{ service.duration }} min</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- CTA Section -->
+    {% if not user.is_authenticated %}
+    <div class="bg-light rounded-lg p-5 text-center mb-5">
+        <h3 class="mb-3">Ready to Book Your Appointment?</h3>
+        <p class="lead mb-4">Create an account or sign in to get started with your next barber appointment</p>
+        <a href="{% url 'user_register' %}" class="btn btn-primary btn-lg me-2">Create Account</a>
+        <a href="{% url 'user_login' %}" class="btn btn-outline-primary btn-lg">Sign In</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

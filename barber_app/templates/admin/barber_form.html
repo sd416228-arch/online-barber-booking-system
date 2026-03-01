@@ -1,0 +1,103 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Barber - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i> 
+                        {% if is_edit %}Edit Barber: {{ barber.name }}{% else %}Create New Barber{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.experience.id_for_label }}" class="form-label">{{ form.experience.label }}</label>
+                            {{ form.experience }}
+                            {% if form.experience.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.experience.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.phone.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.bio.id_for_label }}" class="form-label">{{ form.bio.label }}</label>
+                            {{ form.bio }}
+                            {% if form.bio.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.bio.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.photo.id_for_label }}" class="form-label">{{ form.photo.label }}</label>
+                            {{ form.photo }}
+                            {% if form.photo.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.photo.errors.0 }}</small>
+                            {% endif %}
+                            <small class="text-muted d-block mt-1">Max file size: 5MB. Accepted formats: JPG, PNG</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.services.id_for_label }}" class="form-label">{{ form.services.label }}</label>
+                            <div style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; max-height: 300px; overflow-y: auto;">
+                                {{ form.services }}
+                            </div>
+                            {% if form.services.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.services.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.is_available }}
+                            <label for="{{ form.is_available.id_for_label }}" class="form-check-label">
+                                {{ form.is_available.label }}
+                            </label>
+                            {% if form.is_available.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.is_available.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'admin_barber_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% if is_edit %}Update{% else %}Create{% endif %} Barber
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

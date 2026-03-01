@@ -1,0 +1,61 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}User Login - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card mt-5 mb-5">
+                <div class="card-header text-center">
+                    <h4 class="mb-0"><i class="fas fa-user"></i> User Login</h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.username.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <small class="text-danger d-block mt-1">{{ form.password.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <p class="text-center mb-3">Don't have an account?
+                        <a href="{% url 'user_register' %}"><strong>Register here</strong></a>
+                    </p>
+                    
+                    <p class="text-center text-muted small">
+                        Are you an administrator?
+                        <a href="{% url 'admin_login' %}">Admin Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
