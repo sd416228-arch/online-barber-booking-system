@@ -1,5 +1,6 @@
 💈 Online Barber Booking System
-A simple web app where customers can book haircuts online and barbers can manage appointments.
+
+ A simple web app where customers can book haircuts online and barbers can manage appointments.
 
 ✂️ What It Does
 For customers:
@@ -27,26 +28,30 @@ Update booking status
 🛠️ Built With
 Django (Python)
 
-📁 Project Structure
+HTML/CSS/JavaScript
+
+SQLite database
+
+```
 online_barber_project/
 ├── manage.py
 ├── requirements.txt
 ├── db.sqlite3
-├── online_barber/                  # Project settings
+├── online_barber/
 │   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
+│   ├── settings.py          # Django settings
+│   ├── urls.py              # Main URL configuration
 │   └── wsgi.py
-├── barber_app/                      # Main app
-│   ├── migrations/                  # Database migrations
+├── barber_app/
+│   ├── migrations/
 │   ├── templates/
-│   │   ├── shared/                  # Common pages
+│   │   ├── shared/          # Common templates
 │   │   │   ├── base.html
 │   │   │   ├── index.html
 │   │   │   ├── user_login.html
 │   │   │   ├── user_register.html
 │   │   │   └── admin_login.html
-│   │   ├── admin/                    # Admin pages
+│   │   ├── admin/           # Admin-only templates
 │   │   │   ├── dashboard.html
 │   │   │   ├── barber_list.html
 │   │   │   ├── barber_form.html
@@ -54,7 +59,7 @@ online_barber_project/
 │   │   │   ├── service_form.html
 │   │   │   ├── booking_list.html
 │   │   │   └── booking_detail.html
-│   │   └── user/                      # User pages
+│   │   └── user/            # User-only templates
 │   │       ├── dashboard.html
 │   │       ├── barber_list.html
 │   │       ├── barber_detail.html
@@ -62,41 +67,40 @@ online_barber_project/
 │   │       ├── booking_list.html
 │   │       └── profile.html
 │   ├── static/
-│   │   ├── css/
-│   │   └── js/
-│   ├── admin.py
+│   │   ├── css/             # Custom CSS
+│   │   └── js/              # JavaScript files
+│   ├── admin.py             # Django admin configuration
 │   ├── apps.py
-│   ├── decorators.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── urls.py
-│   └── views.py
-└── media/                             # Uploaded images
-    ├── barber_photos/
-    └── service_images/
-HTML/CSS/JavaScript
-
-SQLite database
+│   ├── decorators.py        # Role-based decorators
+│   ├── forms.py             # Django forms
+│   ├── models.py            # Database models
+│   ├── urls.py              # App URL routing
+│   └── views.py             # View logic
+└── media/
+    ├── barber_photos/       # Barber profile photos
+    └── service_images/      # Service images
+```
 
 🚀 Quick Start
-# 1. Navigate to project
-cd online_barber_project
 
-# 2. Set up virtual environment
-python -m venv venv
-venv\Scripts\activate  # Windows
+     # 1. Navigate to project
+    cd online_barber_project
 
-# 3. Install requirements
-pip install -r requirements.txt
+    # 2. Set up virtual environment
+    python -m venv venv
+    venv\Scripts\activate  # Windows
 
-# 4. Setup database
-python manage.py migrate
+    # 3. Install requirements
+    pip install -r requirements.txt
 
-# 5. Create admin account
-python manage.py createsuperuser
+    # 4. Setup database
+    python manage.py migrate
 
-# 6. Run it
-python manage.py runserver
+    # 5. Create admin account
+    python manage.py createsuperuser
+
+     # 6. Run it
+    python manage.py runserver
 
 Visit: http://127.0.0.1:8000
 
@@ -110,4 +114,3 @@ Django admin: /admin/
 👤 Author
 Sujit Dutta
 sd416228@gmail.com
-
