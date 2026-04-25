@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import CustomUser, Barber, Service, Booking, Review
+from .models import CustomUser, Barber, Service, Booking, Review, Gallery, Offer, BarberLocation
 
 
 @admin.register(CustomUser)
@@ -138,3 +138,74 @@ class ReviewAdmin(admin.ModelAdmin):
         """Show preview of comment"""
         return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
     comment_preview.short_description = 'Comment'
+
+
+@admin.register(Gallery)
+class GalleryAdmin(admin.ModelAdmin):
+    list_display = ('barber', 'title', 'show_image', 'is_featured', 'created_at')
+    list_filter = ('barber', 'is_featured', 'created_at')
+    search_fields = ('barber__name', 'title', 'description')
+    fieldsets = (
+        ('Gallery Info', {'fields': ('barber', 'title', 'description')}),
+        ('Image', {'fields': ('image',)}),
+        ('Status', {'fields': ('is_featured',)}),
+        ('Dates', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
+    )
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def show_image(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" />', obj.image.url)
+        return 'No image'
+    show_image.short_description = 'Image'
+
+
+@admin.register(Offer)
+class OfferAdmin(admin.ModelAdmin):
+    list_display = ('title', 'offer_type', 'discount_display', 'is_valid_display', 'start_date', 'end_date')
+    list_filter = ('offer_type', 'is_active', 'start_date', 'end_date')
+    search_fields = ('title', 'description')
+    fieldsets = (
+        ('Offer Info', {'fields': ('title', 'description', 'offer_type')}),
+        ('Discount', {'fields': ('discount_percent', 'discount_amount')}),
+        ('Applicability', {'fields': ('applicable_service', 'applicable_barber')}),
+        ('Media', {'fields': ('image',), 'classes': ('collapse',)}),
+        ('Duration', {'fields': ('start_date', 'end_date')}),
+        ('Status', {'fields': ('is_active',)}),
+        ('Dates', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
+    )
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def discount_display(self, obj):
+        if obj.discount_percent > 0:
+            return f"{obj.discount_percent}%"
+        elif obj.discount_amount > 0:
+            return f"${obj.discount_amount}"
+        return "No discount"
+    discount_display.short_description = 'Discount'
+    
+    def is_valid_display(self, obj):
+        if obj.is_valid():
+            return format_html('<span style="color: green;">✓ Valid</span>')
+        return format_html('<span style="color: red;">✗ Expired</span>')
+    is_valid_display.short_description = 'Valid'
+
+
+@admin.register(BarberLocation)
+class BarberLocationAdmin(admin.ModelAdmin):
+    list_display = ('barber', 'address', 'opening_time', 'closing_time', 'map_link')
+    search_fields = ('barber__name', 'address')
+    fieldsets = (
+        ('Location Info', {'fields': ('barber', 'address')}),
+        ('Coordinates', {'fields': ('latitude', 'longitude')}),
+        ('Business Hours', {'fields': ('opening_time', 'closing_time')}),
+        ('Maps & Communication', {'fields': ('google_maps_url', 'whatsapp_number')}),
+        ('Dates', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
+    )
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def map_link(self, obj):
+        if obj.google_maps_url:
+            return format_html('<a href="{}" target="_blank">View on Maps</a>', obj.google_maps_url)
+        return 'No map URL'
+    map_link.short_description = 'Maps'

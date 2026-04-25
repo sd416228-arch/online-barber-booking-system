@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from .models import CustomUser, Barber, Service, Booking, Review
+from .models import CustomUser, Barber, Service, Booking, Review, Gallery, Offer, BarberLocation
 from datetime import datetime, timedelta
 
 
@@ -307,5 +307,197 @@ class ReviewForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 4,
                 'placeholder': 'Share your experience with this barber...'
+            }),
+        }
+
+
+class PasswordResetForm(forms.Form):
+    """
+    Form for requesting password reset via email
+    """
+    email = forms.EmailField(
+        label='Email Address',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your registered email address'
+        })
+    )
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and not CustomUser.objects.filter(email=email).exists():
+            raise ValidationError('No account found with this email address.')
+        return email
+
+
+class SetNewPasswordForm(forms.Form):
+    """
+    Form for setting a new password during password reset
+    """
+    password1 = forms.CharField(
+        label='New Password',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter new password'
+        }),
+        help_text='Password must be at least 8 characters long.'
+    )
+    password2 = forms.CharField(
+        label='Confirm Password',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirm your new password'
+        })
+    )
+    
+    def clean_password1(self):
+        password1 = self.cleaned_data.get('password1')
+        if password1 and len(password1) < 8:
+            raise ValidationError('Password must be at least 8 characters long.')
+        return password1
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise ValidationError('Passwords do not match.')
+        return cleaned_data
+
+
+class GalleryForm(forms.ModelForm):
+    """
+    Form for uploading gallery images
+    """
+    class Meta:
+        model = Gallery
+        fields = ('title', 'image', 'description', 'is_featured')
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Image title (e.g., Fade Haircut)'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Describe this work...'
+            }),
+            'is_featured': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
+
+
+class OfferForm(forms.ModelForm):
+    """
+    Form for creating and managing offers
+    """
+    class Meta:
+        model = Offer
+        fields = ('title', 'description', 'offer_type', 'discount_percent', 'discount_amount',
+                  'applicable_service', 'applicable_barber', 'image', 'start_date', 'end_date', 'is_active')
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Offer title'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Describe the offer...'
+            }),
+            'offer_type': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'discount_percent': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Discount percentage (0-100)',
+                'min': '0',
+                'max': '100'
+            }),
+            'discount_amount': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Fixed discount amount',
+                'step': '0.01'
+            }),
+            'applicable_service': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'applicable_barber': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control'
+            }),
+            'start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        discount_percent = cleaned_data.get('discount_percent', 0)
+        discount_amount = cleaned_data.get('discount_amount', 0)
+        
+        if discount_percent == 0 and discount_amount == 0:
+            raise ValidationError('Please enter either a discount percentage or amount.')
+        
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        
+        if start_date and end_date and start_date > end_date:
+            raise ValidationError('Start date must be before end date.')
+        
+        return cleaned_data
+
+
+class BarberLocationForm(forms.ModelForm):
+    """
+    Form for setting barber location with map integration
+    """
+    class Meta:
+        model = BarberLocation
+        fields = ('address', 'latitude', 'longitude', 'google_maps_url', 'opening_time', 'closing_time', 'whatsapp_number')
+        widgets = {
+            'address': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Full address'
+            }),
+            'latitude': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Latitude',
+                'step': '0.000001'
+            }),
+            'longitude': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Longitude',
+                'step': '0.000001'
+            }),
+            'google_maps_url': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Google Maps URL'
+            }),
+            'opening_time': forms.TimeInput(attrs={
+                'class': 'form-control',
+                'type': 'time'
+            }),
+            'closing_time': forms.TimeInput(attrs={
+                'class': 'form-control',
+                'type': 'time'
+            }),
+            'whatsapp_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'WhatsApp number (e.g., +1234567890)'
             }),
         }

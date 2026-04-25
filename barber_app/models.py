@@ -276,3 +276,192 @@ class Review(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.barber.name} ({self.rating}/5)"
+
+
+class Gallery(models.Model):
+    """
+    Gallery model for displaying barber portfolio images
+    """
+    barber = models.ForeignKey(
+        Barber,
+        on_delete=models.CASCADE,
+        related_name='gallery_images',
+        help_text='Barber whose gallery this image belongs to'
+    )
+    title = models.CharField(
+        max_length=200,
+        help_text='Image title or description'
+    )
+    image = models.ImageField(
+        upload_to='gallery/',
+        help_text='Gallery image'
+    )
+    description = models.TextField(
+        blank=True,
+        help_text='Detailed description of the work'
+    )
+    is_featured = models.BooleanField(
+        default=False,
+        help_text='Feature this image on barber profile'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+    
+    class Meta:
+        db_table = 'gallery'
+        verbose_name = 'Gallery'
+        verbose_name_plural = 'Gallery Images'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.barber.name} - {self.title}"
+
+
+class Offer(models.Model):
+    """
+    Offer model for displaying special promotions and discounts
+    """
+    OFFER_TYPE_CHOICES = (
+        ('discount', 'Discount'),
+        ('special', 'Special Offer'),
+        ('bundle', 'Bundle Deal'),
+        ('seasonal', 'Seasonal Offer'),
+    )
+    
+    title = models.CharField(
+        max_length=200,
+        help_text='Offer title'
+    )
+    description = models.TextField(
+        help_text='Detailed description of the offer'
+    )
+    offer_type = models.CharField(
+        max_length=20,
+        choices=OFFER_TYPE_CHOICES,
+        default='discount',
+        help_text='Type of offer'
+    )
+    discount_percent = models.PositiveIntegerField(
+        default=0,
+        help_text='Discount percentage (0-100)'
+    )
+    discount_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='Fixed discount amount'
+    )
+    applicable_service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='offers',
+        help_text='Service this offer applies to (leave empty for all services)'
+    )
+    applicable_barber = models.ForeignKey(
+        Barber,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='offers',
+        help_text='Barber this offer applies to (leave empty for all barbers)'
+    )
+    image = models.ImageField(
+        upload_to='offers/',
+        blank=True,
+        null=True,
+        help_text='Offer image/banner'
+    )
+    start_date = models.DateField(
+        help_text='Offer start date'
+    )
+    end_date = models.DateField(
+        help_text='Offer end date'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Is this offer currently active'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+    
+    class Meta:
+        db_table = 'offers'
+        verbose_name = 'Offer'
+        verbose_name_plural = 'Offers'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.title} ({self.get_offer_type_display()})"
+    
+    def is_valid(self):
+        """Check if offer is currently valid based on dates"""
+        from datetime import date
+        today = date.today()
+        return self.is_active and self.start_date <= today <= self.end_date
+
+
+class BarberLocation(models.Model):
+    """
+    Model for storing barber location details for Google Maps integration
+    """
+    barber = models.OneToOneField(
+        Barber,
+        on_delete=models.CASCADE,
+        related_name='location',
+        help_text='Barber this location belongs to'
+    )
+    address = models.CharField(
+        max_length=255,
+        help_text='Full address'
+    )
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        help_text='Latitude coordinate'
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        help_text='Longitude coordinate'
+    )
+    google_maps_url = models.URLField(
+        blank=True,
+        help_text='Google Maps URL for this location'
+    )
+    opening_time = models.TimeField(
+        default='09:00',
+        help_text='Opening time'
+    )
+    closing_time = models.TimeField(
+        default='18:00',
+        help_text='Closing time'
+    )
+    whatsapp_number = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text='WhatsApp number for bookings (e.g., +1234567890)'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+    
+    class Meta:
+        db_table = 'barber_locations'
+        verbose_name = 'Barber Location'
+        verbose_name_plural = 'Barber Locations'
+    
+    def __str__(self):
+        return f"{self.barber.name} - {self.address}"

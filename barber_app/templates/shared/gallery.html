@@ -1,0 +1,67 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}Gallery - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4"><i class="fas fa-images"></i> Gallery</h1>
+    
+    <!-- Filter by Barber -->
+    {% if barbers %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="GET" class="form-inline">
+                <label for="barber-filter" class="mr-2">Filter by Barber:</label>
+                <select name="barber" id="barber-filter" class="form-control mr-2">
+                    <option value="">All Barbers</option>
+                    {% for barber in barbers %}
+                        <option value="{{ barber.id }}" {% if barber.id|stringformat:"s" == barber_filter %}selected{% endif %}>
+                            {{ barber.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Filter</button>
+                {% if barber_filter %}
+                    <a href="{% url 'gallery' %}" class="btn btn-secondary ml-2">Clear Filter</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Gallery Images -->
+    {% if gallery_images %}
+    <div class="row">
+        {% for image in gallery_images %}
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if image.image %}
+                <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.title }}" style="height: 250px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top" style="height: 250px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ image.title }}</h5>
+                    <p class="card-text text-muted small">
+                        <strong>By:</strong> {{ image.barber.name }}
+                    </p>
+                    {% if image.description %}
+                    <p class="card-text">{{ image.description }}</p>
+                    {% endif %}
+                    <small class="text-muted">
+                        <i class="fas fa-calendar"></i> {{ image.created_at|date:"M d, Y" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No gallery images available at this time.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

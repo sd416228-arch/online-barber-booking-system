@@ -1,0 +1,54 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}{{ barber.name }} - Gallery - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>
+                <img src="{{ barber.photo.url }}" alt="{{ barber.name }}" class="rounded-circle mr-3" style="width: 50px; height: 50px; object-fit: cover;">
+                {{ barber.name }} - Gallery
+            </h1>
+            <p class="text-muted">Portfolio of {{ barber.name }}'s work</p>
+        </div>
+    </div>
+    
+    {% if gallery_images %}
+    <div class="row">
+        {% for image in gallery_images %}
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if image.image %}
+                <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.title }}" style="height: 250px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top" style="height: 250px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-image" style="font-size: 3rem; color: #ccc;"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ image.title }}</h5>
+                    {% if image.description %}
+                    <p class="card-text">{{ image.description }}</p>
+                    {% endif %}
+                    <small class="text-muted">
+                        <i class="fas fa-calendar"></i> {{ image.created_at|date:"M d, Y" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No gallery images available for this barber yet.
+    </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <a href="{% url 'user_barber_detail' barber.id %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
+    </div>
+</div>
+{% endblock %}

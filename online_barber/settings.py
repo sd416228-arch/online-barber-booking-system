@@ -163,7 +163,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 # Security Settings (for production)
 if not DEBUG:
-    ALLOWED_HOSTS = ['yourdomain.com']
+    ALLOWED_HOSTS = ['barberbook.com']
+    DEBUG = False
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True

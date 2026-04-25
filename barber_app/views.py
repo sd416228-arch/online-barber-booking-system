@@ -4,11 +4,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q, Avg
-from datetime import datetime, timedelta
-from .models import CustomUser, Barber, Service, Booking, Review
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from datetime import datetime, timedelta, date
+from .models import CustomUser, Barber, Service, Booking, Review, Gallery, Offer, BarberLocation
 from .forms import (
     UserLoginForm, AdminLoginForm, CustomUserCreationForm,
-    BarberForm, ServiceForm, BookingForm, BookingStatusForm, ReviewForm
+    BarberForm, ServiceForm, BookingForm, BookingStatusForm, ReviewForm,
+    PasswordResetForm, SetNewPasswordForm, GalleryForm, OfferForm, BarberLocationForm
 )
 from .decorators import user_required, admin_required
 
@@ -655,3 +659,453 @@ def user_profile_edit(request):
     
     context = {'user': request.user}
     return render(request, 'user/profile_edit.html', context)
+
+
+# ============================================
+# PASSWORD RESET VIEWS
+# ============================================
+
+@require_http_methods(["GET", "POST"])
+def forgot_password(request):
+    """
+    View for requesting password reset.
+    Sends password reset token to user's email.
+    """
+    if request.user.is_authenticated:
+        if request.user.is_admin():
+            return redirect('admin_dashboard')
+        return redirect('user_dashboard')
+    
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = CustomUser.objects.get(email=email)
+            
+            # Generate token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Store token in session for retrieval (for development)
+            request.session[f'reset_token_{user.pk}'] = token
+            
+            messages.success(request, f'Password reset link has been sent to {email}. Please check your email (or see console for development).')
+            return redirect('password_reset_sent')
+    else:
+        form = PasswordResetForm()
+    
+    context = {'form': form}
+    return render(request, 'shared/forgot_password.html', context)
+
+
+@require_http_methods(["GET"])
+def password_reset_sent(request):
+    """
+    Confirmation page that password reset email has been sent.
+    """
+    context = {}
+    return render(request, 'shared/password_reset_sent.html', context)
+
+
+@require_http_methods(["GET", "POST"])
+def reset_password(request, uidb64, token):
+    """
+    View for resetting password with token.
+    """
+    if request.user.is_authenticated:
+        if request.user.is_admin():
+            return redirect('admin_dashboard')
+        return redirect('user_dashboard')
+    
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+    
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetNewPasswordForm(request.POST)
+            if form.is_valid():
+                password = form.cleaned_data['password1']
+                user.set_password(password)
+                user.save()
+                
+                # Clear the token from session
+                if f'reset_token_{user.pk}' in request.session:
+                    del request.session[f'reset_token_{user.pk}']
+                
+                messages.success(request, 'Your password has been reset successfully! Please login with your new password.')
+                return redirect('user_login')
+        else:
+            form = SetNewPasswordForm()
+        
+        context = {'form': form, 'user': user}
+        return render(request, 'shared/reset_password.html', context)
+    else:
+        messages.error(request, 'Invalid password reset link. Please request a new one.')
+        return redirect('forgot_password')
+
+
+# ============================================
+# ADMIN PASSWORD RESET VIEWS
+# ============================================
+
+@require_http_methods(["GET", "POST"])
+def admin_forgot_password(request):
+    """
+    View for admin to request password reset.
+    Sends password reset token to admin's email.
+    """
+    if request.user.is_authenticated:
+        if request.user.is_admin():
+            return redirect('admin_dashboard')
+        return redirect('user_dashboard')
+    
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = CustomUser.objects.get(email=email)
+            
+            # Check if user is admin
+            if not user.is_admin():
+                messages.error(request, 'This email is not associated with an admin account.')
+                return render(request, 'shared/admin_forgot_password.html', {'form': form})
+            
+            # Generate token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Store token in session for retrieval
+            request.session[f'admin_reset_token_{user.pk}'] = token
+            
+            messages.success(request, f'Password reset link has been sent to {email}. Please check your email (or see console for development).')
+            return redirect('admin_password_reset_sent')
+    else:
+        form = PasswordResetForm()
+    
+    context = {'form': form}
+    return render(request, 'shared/admin_forgot_password.html', context)
+
+
+@require_http_methods(["GET"])
+def admin_password_reset_sent(request):
+    """
+    Confirmation page that admin password reset email has been sent.
+    """
+    context = {}
+    return render(request, 'shared/admin_password_reset_sent.html', context)
+
+
+@require_http_methods(["GET", "POST"])
+def admin_reset_password(request, uidb64, token):
+    """
+    View for admin to reset password with token.
+    """
+    if request.user.is_authenticated:
+        if request.user.is_admin():
+            return redirect('admin_dashboard')
+        return redirect('user_dashboard')
+    
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+    
+    if user is not None and user.is_admin() and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetNewPasswordForm(request.POST)
+            if form.is_valid():
+                password = form.cleaned_data['password1']
+                user.set_password(password)
+                user.save()
+                
+                # Clear the token from session
+                if f'admin_reset_token_{user.pk}' in request.session:
+                    del request.session[f'admin_reset_token_{user.pk}']
+                
+                messages.success(request, 'Your password has been reset successfully! Please login with your new password.')
+                return redirect('admin_login')
+        else:
+            form = SetNewPasswordForm()
+        
+        context = {'form': form, 'user': user}
+        return render(request, 'shared/admin_reset_password.html', context)
+    else:
+        messages.error(request, 'Invalid password reset link. Please request a new one.')
+        return redirect('admin_forgot_password')
+
+
+# ============================================
+# GALLERY & OFFERS VIEWS
+# ============================================
+
+def gallery(request):
+    """
+    Display gallery page with all barber portfolio images.
+    """
+    barber_filter = request.GET.get('barber', '')
+    gallery_images = Gallery.objects.select_related('barber').filter(is_featured=True).order_by('-created_at')
+    
+    if barber_filter:
+        gallery_images = gallery_images.filter(barber_id=barber_filter)
+    
+    barbers = Barber.objects.filter(gallery_images__isnull=False).distinct()
+    
+    context = {
+        'gallery_images': gallery_images,
+        'barbers': barbers,
+        'barber_filter': barber_filter,
+    }
+    return render(request, 'shared/gallery.html', context)
+
+
+def offers(request):
+    """
+    Display offers and promotions page.
+    """
+    today = date.today()
+    offers_list = Offer.objects.filter(
+        is_active=True,
+        start_date__lte=today,
+        end_date__gte=today
+    ).order_by('-start_date')
+    
+    barber_filter = request.GET.get('barber', '')
+    service_filter = request.GET.get('service', '')
+    offer_type_filter = request.GET.get('type', '')
+    
+    if barber_filter:
+        offers_list = offers_list.filter(Q(applicable_barber_id=barber_filter) | Q(applicable_barber__isnull=True))
+    
+    if service_filter:
+        offers_list = offers_list.filter(Q(applicable_service_id=service_filter) | Q(applicable_service__isnull=True))
+    
+    if offer_type_filter:
+        offers_list = offers_list.filter(offer_type=offer_type_filter)
+    
+    barbers = Barber.objects.filter(offers__isnull=False).distinct()
+    services = Service.objects.filter(offers__isnull=False).distinct()
+    offer_types = Offer.OFFER_TYPE_CHOICES
+    
+    context = {
+        'offers': offers_list,
+        'barbers': barbers,
+        'services': services,
+        'offer_types': offer_types,
+        'barber_filter': barber_filter,
+        'service_filter': service_filter,
+        'offer_type_filter': offer_type_filter,
+    }
+    return render(request, 'shared/offers.html', context)
+
+
+def barber_gallery(request, pk):
+    """
+    Display gallery for a specific barber.
+    """
+    barber = get_object_or_404(Barber, pk=pk)
+    gallery_images = Gallery.objects.filter(barber=barber).order_by('-created_at')
+    
+    context = {
+        'barber': barber,
+        'gallery_images': gallery_images,
+    }
+    return render(request, 'user/barber_gallery.html', context)
+
+
+def barber_location(request, pk):
+    """
+    Display barber location with Google Maps integration.
+    """
+    barber = get_object_or_404(Barber, pk=pk)
+    try:
+        location = BarberLocation.objects.get(barber=barber)
+    except BarberLocation.DoesNotExist:
+        location = None
+    
+    context = {
+        'barber': barber,
+        'location': location,
+    }
+    return render(request, 'user/barber_location.html', context)
+
+
+@admin_required
+def admin_gallery_list(request):
+    """
+    Admin view for managing gallery images.
+    """
+    search_query = request.GET.get('search', '')
+    barber_filter = request.GET.get('barber', '')
+    
+    gallery_images = Gallery.objects.select_related('barber')
+    
+    if search_query:
+        gallery_images = gallery_images.filter(Q(title__icontains=search_query) | Q(barber__name__icontains=search_query))
+    
+    if barber_filter:
+        gallery_images = gallery_images.filter(barber_id=barber_filter)
+    
+    barbers = Barber.objects.all()
+    
+    context = {
+        'gallery_images': gallery_images,
+        'barbers': barbers,
+        'search_query': search_query,
+        'barber_filter': barber_filter,
+    }
+    return render(request, 'admin/gallery_list.html', context)
+
+
+@admin_required
+def admin_gallery_create(request, barber_id):
+    """
+    Admin view to upload gallery image for a barber.
+    """
+    barber = get_object_or_404(Barber, pk=barber_id)
+    
+    if request.method == 'POST':
+        form = GalleryForm(request.POST, request.FILES)
+        if form.is_valid():
+            gallery = form.save(commit=False)
+            gallery.barber = barber
+            gallery.save()
+            messages.success(request, 'Gallery image added successfully!')
+            return redirect('admin_gallery_list')
+    else:
+        form = GalleryForm()
+    
+    context = {'form': form, 'barber': barber}
+    return render(request, 'admin/gallery_form.html', context)
+
+
+@admin_required
+def admin_gallery_edit(request, pk):
+    """
+    Admin view to edit gallery image.
+    """
+    gallery = get_object_or_404(Gallery, pk=pk)
+    
+    if request.method == 'POST':
+        form = GalleryForm(request.POST, request.FILES, instance=gallery)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Gallery image updated successfully!')
+            return redirect('admin_gallery_list')
+    else:
+        form = GalleryForm(instance=gallery)
+    
+    context = {'form': form, 'gallery': gallery, 'is_edit': True}
+    return render(request, 'admin/gallery_form.html', context)
+
+
+@admin_required
+def admin_gallery_delete(request, pk):
+    """
+    Admin view to delete gallery image.
+    """
+    gallery = get_object_or_404(Gallery, pk=pk)
+    
+    if request.method == 'POST':
+        gallery.delete()
+        messages.success(request, 'Gallery image deleted successfully!')
+        return redirect('admin_gallery_list')
+    
+    context = {'gallery': gallery}
+    return render(request, 'admin/gallery_confirm_delete.html', context)
+
+
+@admin_required
+def admin_offers_list(request):
+    """
+    Admin view for managing offers.
+    """
+    search_query = request.GET.get('search', '')
+    offers_list = Offer.objects.prefetch_related('applicable_barber', 'applicable_service')
+    
+    if search_query:
+        offers_list = offers_list.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+    
+    context = {
+        'offers': offers_list,
+        'search_query': search_query,
+    }
+    return render(request, 'admin/offers_list.html', context)
+
+
+@admin_required
+def admin_offers_create(request):
+    """
+    Admin view to create a new offer.
+    """
+    if request.method == 'POST':
+        form = OfferForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Offer created successfully!')
+            return redirect('admin_offers_list')
+    else:
+        form = OfferForm()
+    
+    context = {'form': form}
+    return render(request, 'admin/offers_form.html', context)
+
+
+@admin_required
+def admin_offers_edit(request, pk):
+    """
+    Admin view to edit an offer.
+    """
+    offer = get_object_or_404(Offer, pk=pk)
+    
+    if request.method == 'POST':
+        form = OfferForm(request.POST, request.FILES, instance=offer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Offer updated successfully!')
+            return redirect('admin_offers_list')
+    else:
+        form = OfferForm(instance=offer)
+    
+    context = {'form': form, 'offer': offer, 'is_edit': True}
+    return render(request, 'admin/offers_form.html', context)
+
+
+@admin_required
+def admin_offers_delete(request, pk):
+    """
+    Admin view to delete an offer.
+    """
+    offer = get_object_or_404(Offer, pk=pk)
+    
+    if request.method == 'POST':
+        offer.delete()
+        messages.success(request, 'Offer deleted successfully!')
+        return redirect('admin_offers_list')
+    
+    context = {'offer': offer}
+    return render(request, 'admin/offers_confirm_delete.html', context)
+
+
+@admin_required
+def admin_barber_location(request, barber_id):
+    """
+    Admin view to manage barber location and business hours.
+    """
+    barber = get_object_or_404(Barber, pk=barber_id)
+    location, created = BarberLocation.objects.get_or_create(barber=barber)
+    
+    if request.method == 'POST':
+        form = BarberLocationForm(request.POST, instance=location)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Location updated successfully!')
+            return redirect('admin_barber_list')
+    else:
+        form = BarberLocationForm(instance=location)
+    
+    context = {'form': form, 'barber': barber, 'location': location}
+    return render(request, 'admin/barber_location_form.html', context)

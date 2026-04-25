@@ -1,0 +1,102 @@
+{% extends 'shared/base.html' %}
+
+{% block title %}Special Offers - Online Barber{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4"><i class="fas fa-tag"></i> Special Offers & Promotions</h1>
+    
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="GET" class="form-inline">
+                <select name="barber" class="form-control mr-2" id="barber-filter">
+                    <option value="">All Barbers</option>
+                    {% for barber in barbers %}
+                        <option value="{{ barber.id }}" {% if barber.id|stringformat:"s" == barber_filter %}selected{% endif %}>
+                            {{ barber.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+                <select name="service" class="form-control mr-2" id="service-filter">
+                    <option value="">All Services</option>
+                    {% for service in services %}
+                        <option value="{{ service.id }}" {% if service.id|stringformat:"s" == service_filter %}selected{% endif %}>
+                            {{ service.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+                <select name="type" class="form-control mr-2" id="type-filter">
+                    <option value="">All Types</option>
+                    {% for type_id, type_name in offer_types %}
+                        <option value="{{ type_id }}" {% if type_id == offer_type_filter %}selected{% endif %}>
+                            {{ type_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+                <button type="submit" class="btn btn-primary">Filter</button>
+                {% if barber_filter or service_filter or offer_type_filter %}
+                    <a href="{% url 'offers' %}" class="btn btn-secondary ml-2">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    
+    <!-- Offers List -->
+    {% if offers %}
+    <div class="row">
+        {% for offer in offers %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm border-success">
+                {% if offer.image %}
+                <img src="{{ offer.image.url }}" class="card-img-top" alt="{{ offer.title }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">{{ offer.title }}</h5>
+                        <span class="badge badge-success">{{ offer.get_offer_type_display }}</span>
+                    </div>
+                    
+                    <p class="card-text">{{ offer.description }}</p>
+                    
+                    <!-- Discount Badge -->
+                    <div class="alert alert-warning mb-2">
+                        {% if offer.discount_percent > 0 %}
+                            <strong style="font-size: 1.5rem;">{{ offer.discount_percent }}% OFF</strong>
+                        {% elif offer.discount_amount > 0 %}
+                            <strong style="font-size: 1.5rem;">${{ offer.discount_amount }} OFF</strong>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Offer Details -->
+                    <small class="text-muted d-block">
+                        {% if offer.applicable_service %}
+                            <i class="fas fa-scissors"></i> Service: {{ offer.applicable_service.name }}<br>
+                        {% endif %}
+                        {% if offer.applicable_barber %}
+                            <i class="fas fa-user"></i> Barber: {{ offer.applicable_barber.name }}<br>
+                        {% endif %}
+                        <i class="fas fa-calendar"></i> Valid till: {{ offer.end_date|date:"M d, Y" }}
+                    </small>
+                </div>
+                
+                <div class="card-footer bg-white">
+                    <a href="{% url 'user_booking_create' %}" class="btn btn-success btn-block">
+                        <i class="fas fa-shopping-cart"></i> Book Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No active offers at this time. Check back soon!
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
