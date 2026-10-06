@@ -1,0 +1,90 @@
+{% extends "barber_app/base.html" %}
+
+{% block title %}{{ barber.name }} - Master Barber Nepal{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+  <!-- Profile Header Card -->
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 flex flex-col md:flex-row gap-8 items-start">
+    <div class="w-32 h-32 rounded-2xl bg-amber-400 text-slate-900 font-black text-3xl flex items-center justify-center border-4 border-slate-100 shadow-md mx-auto md:mx-0 shrink-0">
+      {{ barber.name|slice:":2" }}
+    </div>
+    <div class="space-y-3 flex-1">
+      <div class="flex flex-wrap justify-between items-center gap-2">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-black text-slate-900">{{ barber.name }}</h1>
+          <p class="text-xs text-amber-600 font-bold mt-1">
+            ★ {{ barber.rating }} Rating &bull; {{ barber.experience_years }} Years Master Experience
+          </p>
+        </div>
+        <a href="{% url 'booking' %}?barber={{ barber.id }}" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-extrabold text-xs px-5 py-2.5 rounded-xl shadow">
+          Book Appointment
+        </a>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">{{ barber.bio }}</p>
+      <div class="flex items-center gap-4 text-xs text-slate-500 pt-2 border-t border-slate-100">
+        <span><i class="fas fa-phone mr-1 text-amber-500"></i> {{ barber.phone }}</span>
+        <span><i class="fas fa-map-marker-alt mr-1 text-amber-500"></i> Kathmandu Flagship Station</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services Offered -->
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-4">
+    <h3 class="text-lg font-black text-slate-900">Services Offered by {{ barber.name }}</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {% for s in services %}
+        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50 flex justify-between items-center">
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">{{ s.name }}</h4>
+            <p class="text-[11px] text-slate-500">{{ s.duration }} mins session</p>
+          </div>
+          <span class="text-base font-black text-[#1e3c72]">{{ CURRENCY_SYMBOL }} {{ s.price|floatformat:0 }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Reviews & Feedback -->
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+    <div class="flex justify-between items-center">
+      <h3 class="text-lg font-black text-slate-900">Client Reviews ({{ reviews.count }})</h3>
+      <span class="text-xs font-bold text-amber-600">Average: ★ {{ barber.rating }}</span>
+    </div>
+
+    <!-- Review Submission Form -->
+    {% if user.is_authenticated %}
+      <form method="POST" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+        {% csrf_token %}
+        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Leave a Review</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-600 text-xs font-bold mb-1">Star Rating</label>
+            {{ review_form.rating }}
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-slate-600 text-xs font-bold mb-1">Your Comment</label>
+            {{ review_form.comment }}
+          </div>
+        </div>
+        <button type="submit" class="bg-[#1e3c72] text-white font-bold text-xs px-4 py-2 rounded-lg">Submit Review</button>
+      </form>
+    {% endif %}
+
+    <div class="space-y-3 divide-y divide-slate-100">
+      {% for r in reviews %}
+        <div class="pt-3 first:pt-0">
+          <div class="flex justify-between items-center">
+            <strong class="text-sm font-bold text-slate-900">{{ r.user.get_full_name|default:r.user.username }}</strong>
+            <span class="text-amber-500 text-xs font-bold">★ {{ r.rating }} / 5</span>
+          </div>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">{{ r.comment }}</p>
+          <span class="text-[10px] text-slate-400 mt-1 block">{{ r.created_at|date:"M d, Y" }}</span>
+        </div>
+      {% empty %}
+        <p class="text-xs text-slate-400">No reviews yet. Be the first to review {{ barber.name }}!</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

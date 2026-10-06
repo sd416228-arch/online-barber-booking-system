@@ -1,0 +1,67 @@
+{% extends "barber_app/base.html" %}
+
+{% block title %}My Appointments - Client Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <!-- Client Profile Banner -->
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xl shadow-xs">
+        <i class="fas fa-user"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-2xl font-black text-slate-900">{{ user.get_full_name|default:user.username }}</h1>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800">Client Account</span>
+        </div>
+        <p class="text-xs text-slate-400 mt-0.5">{{ user.email }} • {{ user.phone|default:"+977 9801234567" }}</p>
+      </div>
+    </div>
+    <a href="{% url 'booking' %}" class="bg-[#1e3c72] hover:bg-[#2a5298] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+      <i class="fas fa-plus"></i>
+      <span>Book New Cut</span>
+    </a>
+  </div>
+
+  <!-- Bookings List -->
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-4">
+    <h3 class="text-lg font-black text-slate-900">Appointment History</h3>
+
+    <div class="space-y-3 divide-y divide-slate-100">
+      {% for b in bookings %}
+        <div class="pt-4 first:pt-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-slate-400 text-xs">#{{ b.id }}</span>
+              <h4 class="font-bold text-slate-900 text-sm">{{ b.service.name }}</h4>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase {% if b.status == 'confirmed' %}bg-blue-100 text-blue-800{% elif b.status == 'completed' %}bg-emerald-100 text-emerald-800{% elif b.status == 'cancelled' %}bg-rose-100 text-rose-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                {{ b.status }}
+              </span>
+            </div>
+            <p class="text-xs text-slate-500">
+              Master Barber: <strong class="text-slate-800">{{ b.barber.name }}</strong>
+            </p>
+            <div class="flex items-center gap-4 text-xs text-slate-500 pt-1">
+              <span><i class="fas fa-calendar mr-1 text-[#1e3c72]"></i> {{ b.booking_date }}</span>
+              <span><i class="fas fa-clock mr-1 text-[#1e3c72]"></i> {{ b.booking_time }}</span>
+              <span class="font-black text-[#1e3c72]">Total: {{ CURRENCY_SYMBOL }} {{ b.total_price|floatformat:0 }}</span>
+            </div>
+          </div>
+
+          {% if b.status != 'cancelled' and b.status != 'completed' %}
+            <a href="{% url 'booking_cancel' b.id %}" onclick="return confirm('Cancel this appointment?')" class="text-xs font-bold text-rose-600 hover:text-rose-800 border border-rose-200 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition">
+              Cancel
+            </a>
+          {% endif %}
+        </div>
+      {% empty %}
+        <div class="text-center py-8 text-slate-400 space-y-2">
+          <i class="fas fa-calendar-times text-3xl"></i>
+          <p class="text-xs">No appointments found. Book your first haircut today!</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,107 +1,95 @@
-💈 Online Barber Booking System
+# Online Barber Booking System (Django Edition & Web Applet)
 
-A simple web app where customers can book haircuts online and barbers can manage appointments.
+A commercial-grade full-stack barber booking and salon management system designed for barbershops in Nepal. Built with a Custom Django User Model, PostgreSQL/SQLite relational database, Django REST Framework, Nepali Rupees (`Rs.`) pricing, and a three-tiered permission architecture (**Client**, **Master Barber**, and **Administrator**).
 
-✂️ What It Does For customers:
+---
 
-Sign up/login to your account
+## 🛠️ Django Tech Stack & Architecture
 
-Browse available barbers and services
+- **Backend Framework**: Python 3.11+, Django 5.x
+- **API Engine**: Django REST Framework (DRF)
+- **Database**: SQLite (built-in default) & PostgreSQL ready via `DATABASES` settings
+- **Authentication**: Custom Unified User Model (`AUTH_USER_MODEL = 'barber_app.CustomUser'`)
+- **Currency**: Standard Nepali Rupees (`Rs.` / `NPR`)
+- **Frontend Templates**: Django Templates + Tailwind CSS + Font Awesome
 
-Book appointments (pick date/time)
+---
 
-See your upcoming bookings
+## 📁 Django Project Structure
 
-Leave reviews after your haircut
-
-For barbers/admins:
-
-Dashboard with all bookings
-
-Add/edit barbers and services
-
-Manage customer appointments
-
-Update booking status
-
-🛠️ Built With Django (Python)
-
-HTML/CSS/JavaScript
-
-SQLite database
-
-online_barber_project/
-├── manage.py
-├── requirements.txt
-├── db.sqlite3
-├── online_barber/
+```text
+├── manage.py                          # Django management CLI
+├── requirements.txt                   # Python dependencies (django, djangorestframework, etc.)
+├── db.sqlite3                         # SQLite database seeded with initial data
+├── online_barber/                     # Main Django project configuration
 │   ├── __init__.py
-│   ├── settings.py          # Django settings
-│   ├── urls.py              # Main URL configuration
-│   └── wsgi.py
-├── barber_app/
-│   ├── migrations/
-│   ├── templates/
-│   │   ├── shared/          # Common templates
-│   │   │   ├── base.html
-│   │   │   ├── index.html
-│   │   │   ├── user_login.html
-│   │   │   ├── user_register.html
-│   │   │   └── admin_login.html
-│   │   ├── admin/           # Admin-only templates
-│   │   │   ├── dashboard.html
-│   │   │   ├── barber_list.html
-│   │   │   ├── barber_form.html
-│   │   │   ├── service_list.html
-│   │   │   ├── service_form.html
-│   │   │   ├── booking_list.html
-│   │   │   └── booking_detail.html
-│   │   └── user/            # User-only templates
-│   │       ├── dashboard.html
-│   │       ├── barber_list.html
-│   │       ├── barber_detail.html
-│   │       ├── booking_form.html
-│   │       ├── booking_list.html
-│   │       └── profile.html
-│   ├── static/
-│   │   ├── css/             # Custom CSS
-│   │   └── js/              # JavaScript files
-│   ├── admin.py             # Django admin configuration
-│   ├── apps.py
-│   ├── decorators.py        # Role-based decorators
-│   ├── forms.py             # Django forms
-│   ├── models.py            # Database models
-│   ├── urls.py              # App URL routing
-│   └── views.py             # View logic
-└── media/
-    ├── barber_photos/       # Barber profile photos
-    └── service_images/      # Service images
-🚀 Quick Start
+│   ├── settings.py                    # Custom user model, Nepali Rupees config (Rs.), static/media
+│   ├── urls.py                        # Root URL dispatcher
+│   ├── wsgi.py                        # WSGI server entrypoint
+│   └── asgi.py
+├── barber_app/                        # Core Barber Booking application
+│   ├── models.py                      # CustomUser (3 roles), BarberProfile, Service, Booking, Review, Offer, BarberSchedule, GalleryItem, BarberLocation
+│   ├── views.py                       # Class-based & functional views for public, client, barber, and admin flows
+│   ├── urls.py                        # Routing for services, barbers, booking flow, dashboards, and API
+│   ├── forms.py                       # Registration, booking, review, and service forms
+│   ├── serializers.py                 # DRF serializers for API endpoints
+│   ├── admin.py                       # Full Django Admin configuration
+│   ├── context_processors.py          # Currency symbol and app metadata context
+│   ├── migrations/                    # Database schema migration files
+│   └── management/commands/
+│       └── seed_barber_data.py        # Database seeder (users, master barbers, Nepali services, offers)
+└── templates/
+    └── barber_app/                    # Production Django HTML Templates
+        ├── base.html                  # Responsive layout with 1-click Demo Role switcher
+        ├── home.html                  # Landing page with live stats and featured services (Rs.)
+        ├── barbers.html               # Master barbers catalog
+        ├── barber_detail.html         # Barber bio, reviews, and services
+        ├── services.html              # Service catalog in Nepali Rupees
+        ├── booking.html               # Interactive booking flow with promo discounts
+        ├── client_dashboard.html      # Client appointment manager
+        ├── barber_dashboard.html      # Chair #1 Studio with financial summary & queue actions
+        ├── admin_dashboard.html       # Business metrics, booking table & service management
+        ├── gallery.html               # Haircut lookbook
+        ├── offers.html                # Promo vouchers
+        └── locations.html             # Kathmandu lounge flagship stations
+```
 
- # 1. Navigate to project
-cd online_barber_project
+---
 
-# 2. Set up virtual environment
-python -m venv venv
-venv\Scripts\activate  # Windows
+## 🚀 Running the Django Project Locally
 
-# 3. Install requirements
-pip install -r requirements.txt
+1. **Install Python Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# 4. Setup database
-python manage.py migrate
+2. **Run Migrations & Seed Data**:
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   python manage.py seed_barber_data
+   ```
 
-# 5. Create admin account
-python manage.py createsuperuser
+3. **Start the Django Server**:
+   ```bash
+   python manage.py runserver 0.0.0.0:8000
+   ```
+   Open `http://127.0.0.0:8000` in your browser.
 
- # 6. Run it
-python manage.py runserver
-Visit: http://127.0.0.1:8000
+4. **Access the Native Django Admin**:
+   Visit `http://127.0.0.0:8000/admin/`  
+   - Username: `admin`  
+   - Password: `password123`
 
-🔑 Login Areas User login: /user-login/
+---
 
-Admin login: /admin-login/
+## 👥 Three-Role System & Demo Accounts
 
-Django admin: /admin/
+| Role | Username | Password | Access / Features |
+|---|---|---|---|
+| **Client** | `alex_client` | `password123` | Book cuts, view appointments, apply promo codes, review barbers |
+| **Barber** | `marcus_barber` | `password123` | Chair #1 schedule, queue management, mark cuts completed, studio financial earnings |
+| **Admin** | `admin` | `password123` | Shop revenue oversight, service catalog CRUD, master booking control |
 
-👤 Author Sujit Dutta sd416228@gmail.com
+The web interface also includes an instant **1-Click Demo Switcher** in the top utility bar (`/demo/user/`, `/demo/barber/`, `/demo/admin/`).
+

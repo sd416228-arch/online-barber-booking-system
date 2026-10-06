@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Online Barber Booking System - Premium Grooming in Nepal{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- TOP UTILITY BAR (DEMO ROLES & PHONE) -->
+  <div class="bg-[#14284d] text-white text-xs py-1.5 px-4 sm:px-8 flex flex-wrap justify-between items-center gap-2">
+    <div class="flex items-center gap-4 text-slate-300">
+      <span><i class="fas fa-phone mr-1 text-amber-400"></i> +977 1-4423456</span>
+      <span class="hidden md:inline"><i class="fas fa-clock mr-1 text-amber-400"></i> Sun-Fri: 9:00 AM - 8:00 PM</span>
+      <span class="bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded text-[11px] font-bold">Currency: {{ CURRENCY_SYMBOL }} (NPR)</span>
+    </div>
+
+    <!-- 1-CLICK INSTANT DEMO SWITCHER (3 ROLES) -->
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <span class="text-slate-400 text-[11px] uppercase font-bold">Demo Role:</span>
+      <a href="{% url 'quick_demo_login' 'user' %}" class="px-2.5 py-1 rounded text-xs font-semibold transition {% if user.is_authenticated and user.role == 'customer' %}bg-amber-400 text-slate-900 font-bold shadow{% else %}bg-slate-700 hover:bg-slate-600 text-slate-200{% endif %}">
+        Client Demo
+      </a>
+      <a href="{% url 'quick_demo_login' 'barber' %}" class="px-2.5 py-1 rounded text-xs font-semibold transition {% if user.is_authenticated and user.role == 'barber' %}bg-amber-400 text-slate-900 font-bold shadow{% else %}bg-slate-700 hover:bg-slate-600 text-slate-200{% endif %}">
+        Barber Demo
+      </a>
+      <a href="{% url 'quick_demo_login' 'admin' %}" class="px-2.5 py-1 rounded text-xs font-semibold transition {% if user.is_authenticated and user.role == 'admin' %}bg-amber-400 text-slate-900 font-bold shadow{% else %}bg-slate-700 hover:bg-slate-600 text-slate-200{% endif %}">
+        Admin Demo
+      </a>
+    </div>
+  </div>
+
+  <!-- MAIN NAVBAR -->
+  <header class="sticky top-0 z-50 bg-[#1e3c72] text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand Logo -->
+        <a href="{% url 'home' %}" class="flex items-center gap-2 group">
+          <div class="w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-[#1e3c72] font-black text-xl shadow group-hover:scale-105 transition-transform">
+            <i class="fas fa-scissors"></i>
+          </div>
+          <div>
+            <span class="text-xl font-bold tracking-tight text-white block leading-none">ONLINE BARBER</span>
+            <span class="text-[10px] tracking-widest text-amber-300 uppercase">Premium Grooming</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center space-x-1">
+          <a href="{% url 'home' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:text-amber-300 transition">Home</a>
+          <a href="{% url 'barbers' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:text-amber-300 transition">Barbers</a>
+          <a href="{% url 'services' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:text-amber-300 transition">Services</a>
+          <a href="{% url 'gallery' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:text-amber-300 transition">Gallery</a>
+          <a href="{% url 'offers' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:text-amber-300 transition">Offers</a>
+          <a href="{% url 'locations' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:text-amber-300 transition">Locations</a>
+        </nav>
+
+        <!-- Right action buttons -->
+        <div class="hidden md:flex items-center gap-3">
+          <a href="{% url 'booking' %}" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 shadow transition transform hover:-translate-y-0.5">
+            <i class="fas fa-calendar-check"></i>
+            <span>Book Appointment</span>
+          </a>
+
+          {% if user.is_authenticated %}
+            <div class="flex items-center gap-2 pl-2 border-l border-white/20">
+              {% if user.role == 'admin' or user.is_superuser %}
+                <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400/20 border border-amber-400 text-amber-300">
+                  <i class="fas fa-shield-alt"></i> Admin Panel
+                </a>
+              {% elif user.role == 'barber' %}
+                <a href="{% url 'barber_dashboard' %}" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400/20 border border-amber-400 text-amber-300">
+                  <i class="fas fa-scissors"></i> Barber Studio
+                </a>
+              {% else %}
+                <a href="{% url 'client_dashboard' %}" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 border border-emerald-400 text-emerald-300">
+                  <i class="fas fa-user-check"></i> My Bookings
+                </a>
+              {% endif %}
+              <a href="{% url 'logout' %}" class="text-xs text-rose-300 hover:text-white px-2 py-1 rounded">Sign Out</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- DJANGO MESSAGES / TOAST ALERTS -->
+  {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mt-4 w-full">
+      {% for message in messages %}
+        <div class="p-4 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm {% if message.tags == 'error' %}bg-rose-50 text-rose-800 border border-rose-200{% else %}bg-emerald-50 text-emerald-800 border border-emerald-200{% endif %}">
+          <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle text-rose-500{% else %}fa-check-circle text-emerald-500{% endif %}"></i>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- MAIN BODY CONTENT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-[#14284d] text-white pt-12 pb-8 border-t border-slate-700 mt-16 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-[#1e3c72] font-black">
+            <i class="fas fa-scissors"></i>
+          </div>
+          <span class="text-base font-bold text-white">ONLINE BARBER</span>
+        </div>
+        <p class="text-slate-400 leading-relaxed">
+          Nepal's premier haircut and beard styling booking destination. Crafted for gentlemen who value sharp cuts and master craftsmanship.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-white uppercase tracking-wider mb-3">Quick Navigation</h4>
+        <ul class="space-y-2 text-slate-300">
+          <li><a href="{% url 'services' %}" class="hover:text-amber-400">All Grooming Services</a></li>
+          <li><a href="{% url 'barbers' %}" class="hover:text-amber-400">Expert Master Barbers</a></li>
+          <li><a href="{% url 'offers' %}" class="hover:text-amber-400">Special Promo Discounts</a></li>
+          <li><a href="{% url 'gallery' %}" class="hover:text-amber-400">Hairstyle Portfolio</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-white uppercase tracking-wider mb-3">Shop Locations</h4>
+        <p class="text-slate-300">Durbar Marg & Lazimpat Flagship Lounges</p>
+        <p class="text-slate-400 mt-1">Kathmandu, Bagmati Province, Nepal</p>
+        <p class="text-amber-300 font-semibold mt-2"><i class="fas fa-phone mr-1"></i> +977 1-4423456</p>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-white uppercase tracking-wider mb-3">Studio Hours</h4>
+        <ul class="space-y-1.5 text-slate-300">
+          <li><span class="text-slate-400">Sunday - Friday:</span> 9:00 AM - 8:00 PM</li>
+          <li><span class="text-slate-400">Saturday:</span> 10:00 AM - 5:00 PM</li>
+          <li class="pt-2 text-emerald-400 font-bold"><i class="fas fa-check-circle mr-1"></i> Walk-ins & Bookings Welcome</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 border-t border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-slate-500 gap-2">
+      <span>&copy; {% now "Y" %} Online Barber Booking System. All prices in Nepali Rupees ({{ CURRENCY_SYMBOL }}).</span>
+      <span>Engineered with Django & PostgreSQL</span>
+    </div>
+  </footer>
+
+</body>
+</html>

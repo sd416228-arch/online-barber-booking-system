@@ -2,56 +2,30 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('user-login/', views.user_login, name='user_login'),
-    path('user-register/', views.user_register, name='user_register'),
-    path('admin-login/', views.admin_login, name='admin_login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('forgot-password/', views.forgot_password, name='forgot_password'),
-    path('password-reset-sent/', views.password_reset_sent, name='password_reset_sent'),
-    path('reset-password/<uidb64>/<token>/', views.reset_password, name='reset_password'),
-    path('admin-forgot-password/', views.admin_forgot_password, name='admin_forgot_password'),
-    path('admin-password-reset-sent/', views.admin_password_reset_sent, name='admin_password_reset_sent'),
-    path('admin-reset-password/<uidb64>/<token>/', views.admin_reset_password, name='admin_reset_password'),
-    
-    path('gallery/', views.gallery, name='gallery'),
-    path('offers/', views.offers, name='offers'),
-    path('barber/<int:pk>/gallery/', views.barber_gallery, name='barber_gallery'),
-    path('barber/<int:pk>/location/', views.barber_location, name='barber_location'),
-    
-    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path('admin-gallery/', views.admin_gallery_list, name='admin_gallery_list'),
-    path('admin-gallery/create/<int:barber_id>/', views.admin_gallery_create, name='admin_gallery_create'),
-    path('admin-gallery/<int:pk>/edit/', views.admin_gallery_edit, name='admin_gallery_edit'),
-    path('admin-gallery/<int:pk>/delete/', views.admin_gallery_delete, name='admin_gallery_delete'),
-    path('admin-offers/', views.admin_offers_list, name='admin_offers_list'),
-    path('admin-offers/create/', views.admin_offers_create, name='admin_offers_create'),
-    path('admin-offers/<int:pk>/edit/', views.admin_offers_edit, name='admin_offers_edit'),
-    path('admin-offers/<int:pk>/delete/', views.admin_offers_delete, name='admin_offers_delete'),
-    path('admin-barbers/<int:barber_id>/location/', views.admin_barber_location, name='admin_barber_location'),
-    path('admin-barbers/', views.admin_barber_list, name='admin_barber_list'),
-    path('admin-barbers/create/', views.admin_barber_create, name='admin_barber_create'),
-    path('admin-barbers/<int:pk>/edit/', views.admin_barber_edit, name='admin_barber_edit'),
-    path('admin-barbers/<int:pk>/delete/', views.admin_barber_delete, name='admin_barber_delete'),
-    path('admin-services/', views.admin_service_list, name='admin_service_list'),
-    path('admin-services/create/', views.admin_service_create, name='admin_service_create'),
-    path('admin-services/<int:pk>/edit/', views.admin_service_edit, name='admin_service_edit'),
-    path('admin-services/<int:pk>/delete/', views.admin_service_delete, name='admin_service_delete'),
-    path('admin-bookings/', views.admin_booking_list, name='admin_booking_list'),
-    path('admin-bookings/<int:pk>/', views.admin_booking_detail, name='admin_booking_detail'),
-    path('admin-bookings/<int:pk>/update/', views.admin_booking_update, name='admin_booking_update'),
-    path('admin-bookings/<int:pk>/delete/', views.admin_booking_delete, name='admin_booking_delete'),
-    
-    path('user-dashboard/', views.user_dashboard, name='user_dashboard'),
-    path('user-barbers/', views.user_barber_list, name='user_barber_list'),
-    path('user-barbers/<int:pk>/', views.user_barber_detail, name='user_barber_detail'),
-    path('user-services/', views.user_service_list, name='user_service_list'),
-    path('user-bookings/', views.user_booking_list, name='user_booking_list'),
-    path('user-bookings/create/', views.user_booking_create, name='user_booking_create'),
-    path('user-bookings/<int:pk>/', views.user_booking_detail, name='user_booking_detail'),
-    path('user-bookings/<int:pk>/update/', views.user_booking_update, name='user_booking_update'),
-    path('user-bookings/<int:pk>/cancel/', views.user_booking_cancel, name='user_booking_cancel'),
-    path('user-bookings/<int:booking_id>/review/', views.user_add_review, name='user_add_review'),
-    path('user-profile/', views.user_profile, name='user_profile'),
-    path('user-profile/edit/', views.user_profile_edit, name='user_profile_edit'),
+    # Public views
+    path('', views.home_view, name='home'),
+    path('barbers/', views.barbers_view, name='barbers'),
+    path('barbers/<int:barber_id>/', views.barber_detail_view, name='barber_detail'),
+    path('services/', views.services_view, name='services'),
+    path('gallery/', views.gallery_view, name='gallery'),
+    path('offers/', views.offers_view, name='offers'),
+    path('locations/', views.locations_view, name='locations'),
+
+    # Booking flow
+    path('book/', views.booking_view, name='booking'),
+    path('booking/cancel/<int:booking_id>/', views.booking_cancel_view, name='booking_cancel'),
+
+    # Dashboards for 3 roles
+    path('dashboard/', views.client_dashboard_view, name='client_dashboard'),
+    path('barber-studio/', views.barber_dashboard_view, name='barber_dashboard'),
+    path('barber-studio/status/<int:booking_id>/', views.barber_update_status_view, name='barber_update_status'),
+    path('admin-portal/', views.admin_dashboard_view, name='admin_dashboard'),
+    path('admin-portal/service/delete/<int:service_id>/', views.admin_service_delete_view, name='admin_service_delete'),
+
+    # Auth & Quick 1-click Demo switchers
+    path('demo/<str:role>/', views.quick_demo_login_view, name='quick_demo_login'),
+    path('logout/', views.auth_logout_view, name='logout'),
+
+    # API endpoints
+    path('api/slots/', views.api_available_slots, name='api_available_slots'),
 ]

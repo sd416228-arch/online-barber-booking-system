@@ -1,0 +1,8 @@
+{
+  "name": "Online Barber Booking System",
+  "description": "Book haircuts and grooming services with expert barbers, manage appointments, and explore services.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

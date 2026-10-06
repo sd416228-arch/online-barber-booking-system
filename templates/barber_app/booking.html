@@ -1,0 +1,110 @@
+{% extends "barber_app/base.html" %}
+
+{% block title %}Book Haircut & Grooming - Online Barber Nepal{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+  <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+    <div class="border-b border-slate-100 pb-4 mb-6">
+      <span class="text-xs font-bold text-amber-600 uppercase tracking-widest">Instant Reservation</span>
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">Book an Appointment</h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">Select your specialist, service, date, and preferred time slot. All fees in Nepali Rupees ({{ CURRENCY_SYMBOL }}).</p>
+    </div>
+
+    <form method="POST" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- STEP 1: SELECT BARBER -->
+      <div>
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
+          1. Select Master Barber
+        </label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {% for b in barbers %}
+            <label class="cursor-pointer border rounded-2xl p-3 text-center flex flex-col items-center hover:border-amber-400 transition hover:bg-amber-50/30">
+              <input type="radio" name="barber" value="{{ b.id }}" {% if preselected_barber_id|stringformat:"s" == b.id|stringformat:"s" or forloop.first %}checked{% endif %} class="mb-2 text-[#1e3c72]">
+              <div class="w-12 h-12 rounded-full bg-amber-400 text-slate-900 font-black text-xs flex items-center justify-center mb-2 border border-slate-200">
+                {{ b.name|slice:":2" }}
+              </div>
+              <span class="text-xs font-bold text-slate-900 leading-tight">{{ b.name }}</span>
+              <span class="text-[10px] text-amber-600 font-bold mt-1">★ {{ b.rating }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- STEP 2: SELECT SERVICE -->
+      <div>
+        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
+          2. Select Grooming Service
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {% for s in services %}
+            <label class="cursor-pointer border rounded-2xl p-4 flex items-center justify-between hover:border-amber-400 transition hover:bg-amber-50/30">
+              <div class="flex items-center gap-3">
+                <input type="radio" name="service" value="{{ s.id }}" {% if preselected_service_id|stringformat:"s" == s.id|stringformat:"s" or forloop.first %}checked{% endif %} class="text-[#1e3c72]">
+                <div>
+                  <span class="text-sm font-bold text-slate-900 block">{{ s.name }}</span>
+                  <span class="text-xs text-slate-400"><i class="fas fa-clock mr-1"></i> {{ s.duration }} mins</span>
+                </div>
+              </div>
+              <span class="text-base font-black text-[#1e3c72]">{{ CURRENCY_SYMBOL }} {{ s.price|floatformat:0 }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- STEP 3: DATE & TIME -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
+            3. Select Date
+          </label>
+          <input type="date" name="booking_date" value="{{ today }}" min="{{ today }}" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-medium">
+        </div>
+
+        <div>
+          <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
+            4. Preferred Time Slot
+          </label>
+          <select name="booking_time" required class="w-full p-3 bg-slate-50 border rounded-xl text-xs font-medium">
+            <option value="09:00">09:00 AM</option>
+            <option value="09:45">09:45 AM</option>
+            <option value="10:30">10:30 AM</option>
+            <option value="11:15">11:15 AM</option>
+            <option value="12:00">12:00 PM</option>
+            <option value="13:30">01:30 PM</option>
+            <option value="14:15">02:15 PM</option>
+            <option value="15:00">03:00 PM</option>
+            <option value="16:00">04:00 PM</option>
+            <option value="17:00">05:00 PM</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STEP 4: PROMO CODE & NOTES -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
+            Promo Code (Optional)
+          </label>
+          <input type="text" name="promo_code" placeholder="e.g. FIRSTCUT20, MIDWEEK15" class="w-full p-3 bg-slate-50 border rounded-xl text-xs uppercase font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
+            Special Styling Instructions
+          </label>
+          <input type="text" name="notes" placeholder="e.g. Low skin taper, natural beard cheek line" class="w-full p-3 bg-slate-50 border rounded-xl text-xs">
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <button type="submit" class="w-full py-4 bg-[#1e3c72] hover:bg-[#2a5298] text-white font-black text-sm rounded-2xl shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+        <i class="fas fa-calendar-check"></i>
+        <span>Confirm Appointment (Pay at Salon in {{ CURRENCY_SYMBOL }})</span>
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

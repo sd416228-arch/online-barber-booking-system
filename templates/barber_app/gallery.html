@@ -1,0 +1,44 @@
+{% extends "barber_app/base.html" %}
+
+{% block title %}Hairstyle Portfolio - Online Barber Nepal{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+      <span class="text-xs font-bold text-amber-600 uppercase tracking-widest">Master Craft Portfolio</span>
+      <h1 class="text-3xl font-extrabold text-slate-900 mt-1">Hairstyle Lookbook</h1>
+      <p class="text-slate-500 text-sm mt-1">Explore skin fades, classic scissor tapers, and precision beard lineups crafted by our master stylists.</p>
+    </div>
+    <div class="flex gap-2 text-xs font-bold">
+      <a href="?cat=all" class="px-3 py-1.5 rounded-lg {% if selected_cat == 'all' %}bg-[#1e3c72] text-white{% else %}bg-slate-100 text-slate-700{% endif %}">All</a>
+      <a href="?cat=Fade" class="px-3 py-1.5 rounded-lg {% if selected_cat == 'Fade' %}bg-[#1e3c72] text-white{% else %}bg-slate-100 text-slate-700{% endif %}">Fade</a>
+      <a href="?cat=Classic" class="px-3 py-1.5 rounded-lg {% if selected_cat == 'Classic' %}bg-[#1e3c72] text-white{% else %}bg-slate-100 text-slate-700{% endif %}">Classic</a>
+      <a href="?cat=Beard" class="px-3 py-1.5 rounded-lg {% if selected_cat == 'Beard' %}bg-[#1e3c72] text-white{% else %}bg-slate-100 text-slate-700{% endif %}">Beard</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for item in gallery_items %}
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-lg transition flex flex-col justify-between h-56">
+        <div>
+          <div class="flex justify-between items-start mb-3">
+            <span class="bg-amber-100 text-amber-900 text-xs font-black px-2.5 py-1 rounded-full uppercase">
+              {{ item.category }}
+            </span>
+            <div class="w-10 h-10 rounded-xl bg-slate-100 text-[#1e3c72] flex items-center justify-center">
+              <i class="fas fa-scissors"></i>
+            </div>
+          </div>
+          <h4 class="font-black text-slate-900 text-base leading-snug">{{ item.title }}</h4>
+          <p class="text-xs text-slate-500 mt-2">Signature cut design tailored with classic scissor craft and clean edge lineup.</p>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex justify-between text-xs">
+          <span class="text-slate-400">Stylist:</span>
+          <span class="font-bold text-[#1e3c72]">{{ item.barber_name }}</span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

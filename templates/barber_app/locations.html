@@ -1,0 +1,41 @@
+{% extends "barber_app/base.html" %}
+
+{% block title %}Barbershop Locations - Online Barber Nepal{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xs">
+    <span class="text-xs font-bold text-amber-600 uppercase tracking-widest">Our Lounges</span>
+    <h1 class="text-3xl font-extrabold text-slate-900 mt-1">Flagship Barber Studios</h1>
+    <p class="text-slate-500 text-sm mt-1">Visit our master grooming hubs located in prime locations across Kathmandu Valley, Nepal.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for loc in locations %}
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">
+            <i class="fas fa-store"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-slate-900 text-lg">{{ loc.shop_name }}</h3>
+            <p class="text-xs text-slate-400">{{ loc.barber_name }} Studio</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs text-slate-600 pt-2 border-t border-slate-100">
+          <p><i class="fas fa-map-marker-alt mr-2 text-[#1e3c72]"></i> {{ loc.address }}, {{ loc.city }}</p>
+          <p><i class="fas fa-phone mr-2 text-[#1e3c72]"></i> {{ loc.phone }}</p>
+          <p><i class="fas fa-clock mr-2 text-[#1e3c72]"></i> {{ loc.hours }}</p>
+        </div>
+
+        <div class="pt-4">
+          <a href="{% url 'booking' %}" class="w-full py-3 bg-[#1e3c72] hover:bg-[#2a5298] text-white font-bold text-xs rounded-xl shadow transition block text-center">
+            Book at This Location
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
