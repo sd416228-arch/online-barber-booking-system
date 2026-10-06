@@ -76,20 +76,4 @@ A commercial-grade full-stack barber booking and salon management system designe
    ```
    Open `http://127.0.0.0:8000` in your browser.
 
-4. **Access the Native Django Admin**:
-   Visit `http://127.0.0.0:8000/admin/`  
-   - Username: `admin`  
-   - Password: `password123`
-
----
-
-## 👥 Three-Role System & Demo Accounts
-
-| Role | Username | Password | Access / Features |
-|---|---|---|---|
-| **Client** | `alex_client` | `password123` | Book cuts, view appointments, apply promo codes, review barbers |
-| **Barber** | `marcus_barber` | `password123` | Chair #1 schedule, queue management, mark cuts completed, studio financial earnings |
-| **Admin** | `admin` | `password123` | Shop revenue oversight, service catalog CRUD, master booking control |
-
-The web interface also includes an instant **1-Click Demo Switcher** in the top utility bar (`/demo/user/`, `/demo/barber/`, `/demo/admin/`).
 
